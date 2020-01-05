@@ -1,8 +1,5 @@
 <?php
 
-// SVN file version:
-// $Id: images_edit.php 233 2007-04-08 07:20:51Z blinking8s $
-
 if(!isset($_SESSION["pixelpost_admin"]) || $cfgrow['password'] != $_SESSION["pixelpost_admin"] || $_GET["_SESSION"]["pixelpost_admin"] == $_SESSION["pixelpost_admin"] || $_POST["_SESSION"]["pixelpost_admin"] == $_SESSION["pixelpost_admin"] || $_COOKIE["_SESSION"]["pixelpost_admin"] == $_SESSION["pixelpost_admin"]) {
 	die ("Try another day!!");
 }
@@ -299,7 +296,7 @@ if($_GET['view'] == "images")
   if($_GET['id'] == "")
   {
 		// Get number of photos in database
-		$photonumb = sql_array("select count(*) as count from ".$pixelpost_db_prefix."pixelpost");
+		$photonumb = sql_array($db, "select count(*) as count from ".$pixelpost_db_prefix."pixelpost");
 		$pixelpost_photonumb = $photonumb['count'];
 	
 		if($_GET['page'] == "")	$page = "0";
@@ -337,9 +334,9 @@ if($_GET['view'] == "images")
 	           <option value=\"\"></option> \n
 	           <option value=\"\">--- $admin_lang_imgedit_mass_2  ---</option> \n";
 	
-		$query = mysql_query("select * from ".$pixelpost_db_prefix."categories order by name");
+		$query = mysqli_query($db, "select * from ".$pixelpost_db_prefix."categories order by name");
 	
-		while(list($id,$name) = mysql_fetch_row($query))
+		while(list($id,$name) = mysqli_fetch_row($query))
 		{
 			$name = pullout($name);
 			$cat_name[] = $name;
@@ -362,9 +359,9 @@ if($_GET['view'] == "images")
 		echo " <input type=\"submit\" name=\"submit-mass-catedit\" id=\"submit-mass-catedit\" value=\"".$admin_lang_imgedit_mass_4."\" /><p /> <ul>";
 
 		$pagec = 0;
-		$images = mysql_query("SELECT * FROM ".$pixelpost_db_prefix."pixelpost ORDER BY datetime DESC limit $page,".$_SESSION['numimg_pp']);
+		$images = mysqli_query($db, "SELECT * FROM ".$pixelpost_db_prefix."pixelpost ORDER BY datetime DESC limit $page,".$_SESSION['numimg_pp']);
 
-		while(list($id,$datetime,$headline,$body,$image,$category) = mysql_fetch_row($images))
+		while(list($id,$datetime,$headline,$body,$image,$category) = mysqli_fetch_row($images))
 		{
 			$headline = pullout($headline);
 # 		$headline = htmlentities($headline);
@@ -385,9 +382,9 @@ if($_GET['view'] == "images")
 
 			// categories
 			echo "<strong>$admin_lang_imgedit_category_plural &nbsp;</strong>";
-					$category_list = mysql_query("SELECT t2.name FROM ".$pixelpost_db_prefix."catassoc t1 INNER JOIN ".$pixelpost_db_prefix."categories t2 ON t1.cat_id = t2.id WHERE t1.image_id = '$id' ORDER BY t2.name ");
+					$category_list = mysqli_query($db, "SELECT t2.name FROM ".$pixelpost_db_prefix."catassoc t1 INNER JOIN ".$pixelpost_db_prefix."categories t2 ON t1.cat_id = t2.id WHERE t1.image_id = '$id' ORDER BY t2.name ");
 
-	    while(list($category_name) = mysql_fetch_row($category_list))
+	    while(list($category_name) = mysqli_fetch_row($category_list))
 	    {
   		 	$category_name = pullout($category_name);
    			echo "[$category_name]";
@@ -448,7 +445,7 @@ if($_GET['view'] == "images")
   {
     // an id is specified, edit the image, pull it out and put it in a form
     $getid = $_GET['id'];
-    $imagerow = sql_array("SELECT * FROM ".$pixelpost_db_prefix."pixelpost where id='$getid'");
+    $imagerow = sql_array($db, "SELECT * FROM ".$pixelpost_db_prefix."pixelpost where id='$getid'");
     $headline = pullout($imagerow['headline']);
     $headline = htmlspecialchars($headline,ENT_QUOTES);
     $body = pullout($imagerow['body']);
@@ -537,7 +534,7 @@ if($_GET['view'] == "images")
  			<div class='content'>$admin_lang_optn_cmnt_mod_txt2
  				<select name=\"comments_settings\">";
 
-			$comments_result = sql_array("SELECT comments FROM ".$pixelpost_db_prefix."pixelpost where id = '$getid'");
+			$comments_result = sql_array($db, "SELECT comments FROM ".$pixelpost_db_prefix."pixelpost where id = '$getid'");
 			$comments = pullout($comments_result['comments']);
 
 			if ($comments =='A')
