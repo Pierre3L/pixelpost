@@ -303,7 +303,6 @@ if($_GET['view'] == "")
 			} // end move
 		} // end prepare of file ($_FILES['userfile'] != "")
 	    // insert post in mysql
-		print("insert post in mysql");
 		$image = $filnamn;
 		if($status == "ok"){
 			$query = "insert into ".$pixelpost_db_prefix."pixelpost(datetime,headline,body,image,alt_headline,alt_body,comments,exif_info)
@@ -338,7 +337,6 @@ if($_GET['view'] == "")
 					<br/> ";
 			};
 			echo $to_echo; // tag of content div still open
-
 			//create thumbnail
 			if(function_exists('gd_info')){
 				$gd_info = gd_info();
