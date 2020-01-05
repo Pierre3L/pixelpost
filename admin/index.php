@@ -1,41 +1,4 @@
 <?php
-
-// SVN file version:
-// $Id: index.php 251 2007-04-12 05:08:44Z d3designs $
-
-/*
-
-Pixelpost version 1.6
-
-Pixelpost www: http://www.pixelpost.org/
-
-Version 1.6:
-Development Team:
-Ramin Mehran, Connie Mueller-Goedecke, Will Duncan, Joseph Spurling, 
-Piotr "GeoS" Galas, Dennis Mooibroek, Karin Uhlig, Jay Williams, David Kozikowski
-Version 1.1 to Version 1.3: Linus <http://www.shapestyle.se>
-
-Contact: thecrew (at) pixelpost (dot) org
-Copyright 2006 Pixelpost.org <http://www.pixelpost.org>
-
-
-License: http://www.gnu.org/copyleft/gpl.html
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
 // variable clean up
 if(isset($_GET["loginmessage"]) || isset($_POST["loginmessage"]))	$loginmessage = "";
 
@@ -57,21 +20,21 @@ require("../includes/pixelpost.php");
 require("../includes/functions.php");
 
 $pixelpost_prefix_used = $pixelpost_db_prefix;
-start_mysql();
+$db = start_mysql();
 
 // added to allow upgrades
 // This will be 0 for clean install, 1.3 for that version, 1.4+ for newer versions...
-$installed_version = Get_Pixelpost_Version($pixelpost_db_prefix);
-if( $installed_version < 1.6 )
-{
-	header("Location: install.php");
-	exit;
-}
+// $installed_version = Get_Pixelpost_Version($db, $pixelpost_db_prefix);
+// if( $installed_version < 1.6 )
+// {
+// 	header("Location: install.php");
+// 	exit;
+// }
 
 // Changed to allow upgrades
-if($cfgquery = mysql_query("select * from ".$pixelpost_db_prefix."config"))
+if($cfgquery = mysqli_query( $db, "select * from ".$pixelpost_db_prefix."config"))
 {
-	$cfgrow = mysql_fetch_assoc($cfgquery);
+	$cfgrow = mysqli_fetch_assoc($cfgquery);
 	$upload_dir = $cfgrow['imagepath'];
 } else {
 	header("Location: install.php");
@@ -79,7 +42,7 @@ if($cfgquery = mysql_query("select * from ".$pixelpost_db_prefix."config"))
 }
 
 /* Special language file for Admin-Section, default is english */
-if($cfgrow = sql_array("SELECT * FROM ".$pixelpost_db_prefix."config"))
+if($cfgrow = sql_array($db, "SELECT * FROM ".$pixelpost_db_prefix."config"))
 {
 	if (file_exists("../language/admin-lang-".$cfgrow['langfile'].".php"))
 	{

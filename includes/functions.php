@@ -270,9 +270,9 @@ function book_visitor($str)
 	}
 }
 
-function sql_array($str)
+function sql_array( $db, $str)
 {
-	$query = mysqli_query($str);
+	$query = mysqli_query($db, $str);
 	$row = mysqli_fetch_array($query);
 	return $row;
 }
@@ -284,11 +284,20 @@ function start_mysql()
 	if (!file_exists($dir ."/splash_page.html"))
 		$dir = '../templates';
 
-	if(!mysqli_connect($pixelpost_db_host, $pixelpost_db_user, $pixelpost_db_pass))
-		show_splash("Connect DB Error: ". mysqli_error()." Cause #2",$dir);
+		$db = mysqli_connect($pixelpost_db_host, $pixelpost_db_user, $pixelpost_db_pass, $pixelpost_db_pixelpost );
+		if (!$db) {
+			echo "Error: Unable to connect to MySQL." . PHP_EOL;
+			echo "Debugging errno: " . mysqli_connect_errno() . PHP_EOL;
+			echo "Debugging error: " . mysqli_connect_error() . PHP_EOL;
+			show_splash("Connect DB Error: ". mysqli_error($db)." Cause #2",$dir);
+			exit;
+		}
+		return $db;
+		// if(!mysqli_connect($pixelpost_db_host, $pixelpost_db_user, $pixelpost_db_pass))
+		// show_splash("Connect DB Error: ". mysqli_error()." Cause #2",$dir);
 
-	if(!mysqli_select_db($pixelpost_db_pixelpost))
-		show_splash("Select DB Error: ". mysqli_error()." Cause #2",$dir);
+	// if(!mysqli_select_db($pixelpost_db_pixelpost))
+	// 	show_splash("Select DB Error: ". mysqli_error()." Cause #2",$dir);
 }
 
 // function show_splash
