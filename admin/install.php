@@ -1,24 +1,29 @@
 <?php
-
-// SVN file version:
-// $Id: install.php 251 2007-04-12 05:08:44Z d3designs $
-
 require("../includes/pixelpost.php");
 require('../includes/create_tables.php');
 require('../includes/functions.php');
-
 /* start up mysql */
-mysql_connect($pixelpost_db_host, $pixelpost_db_user, $pixelpost_db_pass) || die("Error: ". mysql_error());
-mysql_select_db($pixelpost_db_pixelpost) || die("Error: ". mysql_error());
+$db = mysqli_connect($pixelpost_db_host, $pixelpost_db_user, $pixelpost_db_pass, $pixelpost_db_pixelpost );
+
+if (!$db) {
+    echo "Error: Unable to connect to MySQL." . PHP_EOL;
+    echo "Debugging errno: " . mysqli_connect_errno() . PHP_EOL;
+    echo "Debugging error: " . mysqli_connect_error() . PHP_EOL;
+    exit;
+}
+else{
+	echo "Success: A proper connection to MySQL was made! The my_db database is great.<br>" . PHP_EOL;
+	echo "Host information: " . mysqli_get_host_info($db) . PHP_EOL;
+	// mysqli_close($db);
+	// exit;
+}
 
 // This will be 0 for clean install, 1.3 for that version, 1.4+ for newer versions...
-$installed_version = Get_Pixelpost_Version( $pixelpost_db_prefix);
+$installed_version = Get_Pixelpost_Version( $db, $pixelpost_db_prefix );
 if( $installed_version == 1.6) {
     header("Location: index.php");
     exit;
 }
-
-
 ?>
 
 <html>
@@ -98,38 +103,39 @@ $prefix = $pixelpost_db_prefix;
 switch( $installed_version) {
 	case 0:	// Not installed
 		Show_username_password();
-		Create13Tables( $prefix);
-		Set_Configuration($prefix);
+		Create13Tables( $db, $prefix );
+		Set_Configuration($db, $prefix);
 		// Do not break, fall through to the next case statement
-	case 1.3:	// Installed 1.3 or earlier
-		UpgradeTo14( $prefix);
-		if( $installed_version == 1.3)
-		{
-			ConvertPassword( $prefix);
-		}
+	// case 1.3:	// Installed 1.3 or earlier
+	// 	UpgradeTo14( $prefix);
+	// 	if( $installed_version == 1.3)
+	// 	{
+	// 		ConvertPassword( $prefix);
+	// 	}
 
-		// Do not break, fall through to the next case statement
-	case 1.4:	// Already upgraded
-		UpgradeTo141($prefix);
+	// 	// Do not break, fall through to the next case statement
+	// case 1.4:	// Already upgraded
+	// 	UpgradeTo141($prefix);
 
-	case 1.41: // fall to the next
-	case 1.42:
-	case 1.499:
-	case 1.4993:
-		//UpgradeTo1501($prefix);
-	case 1.49931:
-		//UpgradeTo15011($prefix);
-	case 1.4994:
-		//UpgradeTo15012($prefix);
-	case 1.4995:
-		UpgradeTo15beta($prefix,'1.49995');
-	case 1.49995:  //upgrade from beta to final 1.5
-		UpgradeTo15final($prefix,'1.5');
-	case 1.5:  //upgrade from final to 1.6Beta
-		UpgradeTo16beta($prefix,'1.59');
-	case 1.59:  //upgrade from 1.6Beta to 1.6Final
-		UpgradeTo16final($prefix,'1.6');
-	// Add the upgrade to 1.7 here later
+	// case 1.41: // fall to the next
+	// case 1.42:
+	// case 1.499:
+	// case 1.4993:
+	// 	//UpgradeTo1501($prefix);
+	// case 1.49931:
+	// 	//UpgradeTo15011($prefix);
+	// case 1.4994:
+	// 	//UpgradeTo15012($prefix);
+	// case 1.4995:
+	// 	UpgradeTo15beta($prefix,'1.49995');
+	// case 1.49995:  //upgrade from beta to final 1.5
+	// 	UpgradeTo15final($prefix,'1.5');
+	// case 1.5:  //upgrade from final to 1.6Beta
+	// 	UpgradeTo16beta($prefix,'1.59');
+	// case 1.59:  //upgrade from 1.6Beta to 1.6Final
+	// 	print("1.59");
+	// 	UpgradeTo16final($db, $prefix,'1.6');
+	// // Add the upgrade to 1.7 here later
 	break;
 	default:
 		echo "<b>Due to an error in your database, the installer was unable to continue.</b><br/><br/>
@@ -139,6 +145,7 @@ switch( $installed_version) {
 		exit();
 	break;
 }
+print("The tables are all set");
 
 echo "<b>The tables are all set.</b><p />";
 // new foldercheck routine.

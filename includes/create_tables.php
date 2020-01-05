@@ -1,20 +1,16 @@
 <?php
-
-// SVN file version:
-// $Id: create_tables.php 242 2007-04-11 15:54:46Z schonhose $
-
 echo "<ul>";
 
 // Converts the password from the 1.3 base64encoded to MD5 hash
 // Do not do this unless we are upgrading
 
-function ConvertPassword( $prefix)
+function ConvertPassword( $db, $prefix)
 {
-	$result = mysql_query("SELECT password FROM {$prefix}config LIMIT 1") or die("Error: ". mysql_error());
-	if( $row = mysql_fetch_array( $result))
+	$result = mysqli_query(  $db,  $db, "SELECT password FROM {$prefix}config LIMIT 1") or die("Error: ". mysqli_error(  $db ) );
+	if( $row = mysqli_fetch_array( $result))
 	{
 		$adm_pass = base64_decode($row[0]);
-		mysql_query("UPDATE {$prefix}config SET password=MD5('$adm_pass') LIMIT 1") or die("Error: ". mysql_error());
+		mysqli_query(  $db,  $db, "UPDATE {$prefix}config SET password=MD5('$adm_pass') LIMIT 1") or die("Error: ". mysqli_error(  $db ) );
 		echo "<li style=\"list-style-type:none;\">Password updated from 1.3 to 1.4 hash ...</li>";
 	}
 }
@@ -28,11 +24,11 @@ function Show_username_password(){
 	Password: <b>$admin_password</b><p />";
 }
 
-function Create13Tables( $prefix)
+function Create13Tables( $db, $prefix)
 {
 	echo "<li style=\"list-style-type:none;\"><strong>Automatic creation of tables</strong></li><p />";
 	// Config table
-	mysql_query("
+	mysqli_query(  $db, "
 	CREATE TABLE IF NOT EXISTS {$prefix}config (
 		admin varchar(20) NOT NULL default '',
 		password varchar(90) NOT NULL default '',
@@ -51,57 +47,57 @@ function Create13Tables( $prefix)
 		compression int(11) NOT NULL,
 		dateformat varchar(30) NOT NULL default ''
 	)
-	") or die("Error: ". mysql_error());
+	") or die( "Error: ". mysqli_error( $db ));
 	echo "<li style=\"list-style-type:none;\">Table {$prefix}config created ...</li>";
 
 	// Categories Table
-	mysql_query("
+	mysqli_query(  $db, "
 	CREATE TABLE IF NOT EXISTS {$prefix}categories (
 		id int(11) NOT NULL auto_increment,
 		name varchar(100) NOT NULL default '',
 		KEY id (id)
 	)
-	") or die("Error: ". mysql_error());
+	") or die("Error: ". mysqli_error( $db ));
 
-	mysql_query("
+	mysqli_query(  $db, "
 	INSERT INTO {$prefix}categories VALUES (0, 'default')
-	") or die("Error: ". mysql_error());
+	") or die("Error: ". mysqli_error(  $db ) );
 	echo "<li style=\"list-style-type:none;\">Table {$prefix}categories created ...</li>";
 
 	// Pixelpost table
-	mysql_query("
+	mysqli_query(  $db, "
 	CREATE TABLE IF NOT EXISTS {$prefix}pixelpost (
 		id int(11) NOT NULL auto_increment,
-		datetime datetime NOT NULL default '0000-00-00 00:00:00',
+		datetime datetime default NULL,
 		headline varchar(150) NOT NULL default '',
 		body text NOT NULL,
 		image text NOT NULL,
 		category varchar(150) NOT NULL default '',
 		KEY id (id)
 	)
-	") or die("Error: ". mysql_error());
+	") or die("Error: ". mysqli_error(  $db ) );
 	echo "<li style=\"list-style-type:none;\">Table {$prefix}pixelpost created ...</li>";
 
 	// Comments table
-	mysql_query("
+	mysqli_query(  $db, "
 	CREATE TABLE IF NOT EXISTS {$prefix}comments (
 		id int(11) NOT NULL auto_increment,
 		parent_id int(11) NOT NULL default '0',
-		datetime datetime NOT NULL default '0000-00-00 00:00:00',
+		datetime datetime default NULL,
 		ip varchar(20) NOT NULL default '',
 		message text NOT NULL,
 		name varchar(20) NOT NULL default '',
 		url varchar(40) NOT NULL default '',
 		KEY id (id)
 	)
-	") or die("Error: ". mysql_error());
+	") or die("Error: ". mysqli_error(  $db ) );
 	echo "<li style=\"list-style-type:none;\">Table {$prefix}comments created ...</li>";
 
 	// Visitors table
-	mysql_query("
+	mysqli_query(  $db, "
 	CREATE TABLE IF NOT EXISTS {$prefix}visitors (
 		id int(11) NOT NULL auto_increment,
-		datetime datetime NOT NULL default '0000-00-00 00:00:00',
+		datetime datetime default NULL,
 		host varchar(100) NOT NULL default '',
 		referer varchar(255) NOT NULL default '',
 		ua varchar(255) NOT NULL default '',
@@ -109,12 +105,12 @@ function Create13Tables( $prefix)
 		ruri varchar(150) NOT NULL default '',
 		PRIMARY KEY  (id)
 	)
-	") or die("Error: ". mysql_error());
+	") or die("Error: ". mysqli_error(  $db ) );
 	echo "<li style=\"list-style-type:none;\">Table {$prefix}visitors created ...</li>";
 }
 
 // This is 1.3 version of the config except the password is now MD5
-function Set_Configuration($prefix)
+function Set_Configuration($db, $prefix)
 {
 	// guess environment
 	$site_url = $_SERVER['SERVER_NAME'];
@@ -131,11 +127,11 @@ function Set_Configuration($prefix)
 	$admin_user = addslashes($_POST['admin_user']);
 	$admin_password = $_POST['admin_password'];
 
-	$query = mysql_query("
+	$query = mysqli_query(  $db, "
 	INSERT INTO {$prefix}config
 	(`admin`, `password`, `email`, `commentemail`, `template`, `imagepath`, `siteurl`, `sitetitle`, `langfile`, `calendar`, `crop`, `thumbwidth`, `thumbheight`, `thumbnumber`, `compression`, `dateformat`)
 	VALUES ( '$admin_user', MD5('$admin_password'),'','no', 'simple', '$images_path', '$site_url', 'pixelpost','english','No Calendar','yes','100','75','5','75','Y-m-d H:i:s')
-	") or die("Error: ". mysql_error());
+	") or die("Error: ". mysqli_error(  $db ) );
 	echo "<li style=\"list-style-type:none;\">Table {$prefix}config populated ...</li>";
 }
 
@@ -144,7 +140,7 @@ function UpgradeTo14( $prefix)
 {
 	// Version 1.4
 	// Make future upgrade scripts easier by adding a version table
-	mysql_query("
+	mysqli_query(  $db, "
 	CREATE TABLE IF NOT EXISTS {$prefix}version (
 		`id` int(10) unsigned NOT NULL auto_increment,
 		`upgrade_date` timestamp(14) NOT NULL,
@@ -152,15 +148,15 @@ function UpgradeTo14( $prefix)
 		PRIMARY KEY  (`id`),
 		KEY `version` (`version`)
 	)
-	") or die("Error: ". mysql_error());
+	") or die("Error: ". mysqli_error(  $db ) );
 
-	mysql_query("
+	mysqli_query(  $db, "
 	INSERT INTO `{$prefix}version` (version) VALUES (1.4)
-	") or die("Error: ". mysql_error());
+	") or die("Error: ". mysqli_error(  $db ) );
 	echo "<li style=\"list-style-type:none;\">Table ".$prefix."version created ...</li>";
 
 	// Multiple Categories support
-	mysql_query("
+	mysqli_query(  $db, "
 	CREATE TABLE IF NOT EXISTS {$prefix}catassoc (
 		id int(11) NOT NULL auto_increment,
 		cat_id int(11) NOT NULL default '0',
@@ -169,87 +165,87 @@ function UpgradeTo14( $prefix)
 		KEY cat_id (cat_id),
 		KEY image_id (image_id)
 	)
-	") or die("Error: ". mysql_error());
+	") or die("Error: ". mysqli_error(  $db ) );
 	echo "<li style=\"list-style-type:none;\">Table ".$prefix."catassoc created ...</li>";
 
 	// Timezone support, the 0 will be included automatically, so no need to insert
 	$tz = date("Z")/3600; // set the default timezone value equal to the server timezone
-	mysql_query("
+	mysqli_query(  $db, "
 	ALTER TABLE `{$prefix}config` ADD `timezone` FLOAT DEFAULT '".$tz."' NOT NULL
-	") or die("Error: ". mysql_error());
+	") or die("Error: ". mysqli_error(  $db ) );
 	echo "<li style=\"list-style-type:none;\">Added timezone support ...</li>";
 
 	// Customizable category links
-	mysql_query("
+	mysqli_query(  $db, "
 	ALTER TABLE `{$prefix}config` ADD `catgluestart` varchar(5) DEFAULT '[' NOT NULL
-	") or die("Error: ". mysql_error());
-	mysql_query("
+	") or die("Error: ". mysqli_error(  $db ) );
+	mysqli_query(  $db, "
 	ALTER TABLE `{$prefix}config` ADD `catglueend` varchar(5) DEFAULT ']' NOT NULL
-	") or die("Error: ". mysql_error());
+	") or die("Error: ". mysqli_error(  $db ) );
 	echo "<li style=\"list-style-type:none;\">Added customizable category links support ...</li>";
 
 
-	mysql_query("
+	mysqli_query(  $db, "
 	ALTER TABLE `{$prefix}config` ADD `htmlemailnote` CHAR(3) DEFAULT 'yes'
-	") or die("Error: ". mysql_error());
+	") or die("Error: ". mysqli_error(  $db ) );
 	echo "<li style=\"list-style-type:none;\">Added HTML notification email support ...</li>";
 
 
-	if(!mysql_query("
+	if(!mysqli_query(  $db, "
 	ALTER TABLE `{$prefix}comments` ADD `email` varchar(100)
-	")) echo("comments.email already exists: ". mysql_error());
+	")) echo("comments.email already exists: ". mysqli_error(  $db ) );
 	echo "<li style=\"list-style-type:none;\">Added email in comments support ...</li>";
 
 
-	mysql_query("
+	mysqli_query(  $db, "
 	ALTER TABLE `{$prefix}comments` MODIFY  `name` varchar(30)
-	") or die("Error: ". mysql_error());
+	") or die("Error: ". mysqli_error(  $db ) );
 	echo "<li style=\"list-style-type:none;\">Longer name field in comments support ...</li>";
 
 
-	mysql_query("
+	mysqli_query(  $db, "
 	ALTER TABLE `{$prefix}comments` MODIFY  `url` varchar(70)
-	") or die("Error: ". mysql_error());
+	") or die("Error: ". mysqli_error(  $db ) );
 	echo "<li style=\"list-style-type:none;\">Longer url field in comments support ...</li>";
 
 
-	mysql_query("
+	mysqli_query(  $db, "
 	ALTER TABLE `{$prefix}config` ADD `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST
-	") or die("Error: ". mysql_error());
+	") or die("Error: ". mysqli_error(  $db ) );
 	echo "<li style=\"list-style-type:none;\">Added indexes to {$prefix}config ...</li>";
 
 	// Indexes
-	mysql_query("
+	mysqli_query(  $db, "
 	ALTER TABLE `{$prefix}categories` DROP INDEX `id`, ADD PRIMARY KEY ( `id`)
 	");
 	echo "<li style=\"list-style-type:none;\">Added indexes to {$prefix}categories ...</li>";
-	mysql_query("
+	mysqli_query(  $db, "
 	ALTER TABLE `{$prefix}comments` DROP INDEX `id`, ADD PRIMARY KEY ( `id`), ADD INDEX ( `parent_id`)
 	");
 	echo "<li style=\"list-style-type:none;\">Added indexes to {$prefix}comments ...</li>";
-	mysql_query("
+	mysqli_query(  $db, "
 	ALTER TABLE `{$prefix}pixelpost` DROP INDEX `id`, ADD PRIMARY KEY ( `id`), ADD INDEX ( `datetime`)
 	");
 	echo "<li style=\"list-style-type:none;\">Added indexes to {$prefix}pixelpost ...</li>";
-	mysql_query("
+	mysqli_query(  $db, "
 	ALTER TABLE `{$prefix}visitors` ADD INDEX ( `datetime`), ADD INDEX ( `referer`), ADD INDEX ( `ip`)
 	");
 	echo "<li style=\"list-style-type:none;\">Added indexes to {$prefix}visitors ...</li>";
 
 	// Move any existing categories into the new category association table
-	$result = mysql_query("SELECT id, category FROM {$prefix}pixelpost") or die("Error: ". mysql_error());
-	while( $row = mysql_fetch_array( $result))
+	$result = mysqli_query(  $db, "SELECT id, category FROM {$prefix}pixelpost") or die("Error: ". mysqli_error(  $db ) );
+	while( $row = mysqli_fetch_array( $result))
 	{
-		mysql_query("INSERT INTO {$prefix}catassoc VALUES ( 0, '{$row[1]}', '{$row[0]}')") or die("Error: ". mysql_error());
+		mysqli_query(  $db, "INSERT INTO {$prefix}catassoc VALUES ( 0, '{$row[1]}', '{$row[0]}')") or die("Error: ". mysqli_error(  $db ) );
 	}
 }
 
 // Upgrade the version table from the 1.4 to the 141
 function UpgradeTo141( $prefix)
 {
-	mysql_query("
+	mysqli_query(  $db, "
 	INSERT INTO `{$prefix}version` (version) VALUES (1.41)
-	") or die("Error: ". mysql_error());
+	") or die("Error: ". mysqli_error(  $db ) );
 	//echo "table ".$prefix."version updated to 1.4.1 ...<p />";
 }
 
@@ -263,13 +259,13 @@ global $pixelpost_db_prefix;
 	{
 		// add moterate_comments field to config table
 		$table = $prefix."config";
-		mysql_query("ALTER TABLE $table ADD `moderate_comments` VARCHAR( 3) DEFAULT 'no' NOT NULL ")
-			or die("Error: ". mysql_error());
+		mysqli_query(  $db, "ALTER TABLE $table ADD `moderate_comments` VARCHAR( 3) DEFAULT 'no' NOT NULL ")
+			or die("Error: ". mysqli_error(  $db ) );
 
 		// add publish field to comments table
 		$table = $prefix ."comments";
-		mysql_query("ALTER TABLE $table ADD `publish` VARCHAR( 3) DEFAULT 'yes' NOT NULL ")
-			or die("Error: ". mysql_error());
+		mysqli_query(  $db, "ALTER TABLE $table ADD `publish` VARCHAR( 3) DEFAULT 'yes' NOT NULL ")
+			or die("Error: ". mysqli_error(  $db ) );
 
 		echo "<li style=\"list-style-type:none;\">Comment moderation feature is added ...</li>";
 	}
@@ -282,7 +278,7 @@ global $pixelpost_db_prefix;
 		type VARCHAR(15) NOT NULL default 'normal',
 		PRIMARY KEY  (id)
 	)";
-	mysql_query( $query) or die("Error: ". mysql_error());;
+	mysqli_query(  $db,  $query) or die("Error: ". mysqli_error(  $db ) );;
 
 	// populate the addons table
 	$dir = "../addons/";
@@ -290,9 +286,9 @@ global $pixelpost_db_prefix;
 	echo "<li style=\"list-style-type:none;\">Addon ON/OFF switchs are added.</li>";
 
 	// update version
-	mysql_query("
+	mysqli_query(  $db, "
 	INSERT INTO `{$prefix}version` (version) VALUES (1.49931)
-	") or die("Error: ". mysql_error());
+	") or die("Error: ". mysqli_error(  $db ) );
 	echo "<li style=\"list-style-type:none;\">Table ".$prefix."version updated to 1.5alpha_a03 ...</li>";
 }
 
@@ -304,18 +300,18 @@ function UpgradeTo15011( $prefix)
 	{
 		// del clean_url field from config table
 		$table = $prefix."config";
-		mysql_query("ALTER TABLE $table DROP `clean_url` ")
-			or die("Error: ". mysql_error());
+		mysqli_query(  $db, "ALTER TABLE $table DROP `clean_url` ")
+			or die("Error: ". mysqli_error(  $db ) );
 
 		// del clean_url field from pixelpost table
 		$table = $prefix."pixelpost";
-		mysql_query("ALTER TABLE $table DROP `clean_url` ")
-			or die("Error: ". mysql_error());
+		mysqli_query(  $db, "ALTER TABLE $table DROP `clean_url` ")
+			or die("Error: ". mysqli_error(  $db ) );
 
 		// update version
-		mysql_query("
+		mysqli_query(  $db, "
 		INSERT INTO `{$prefix}version` (version) VALUES (1.4995)
-		") or die("Error: ". mysql_error());
+		") or die("Error: ". mysqli_error(  $db ) );
 		echo "<li style=\"list-style-type:none;\">Table ".$prefix."version updated to 1.5alpha_a04 ...</li>";
 	}
 }
@@ -327,15 +323,15 @@ function UpgradeTo15012($prefix)
 	{
 		// add clean_url field to config table
 		$table = $prefix."config";
-		mysql_query("ALTER TABLE $table ADD `timestamp` VARCHAR( 4) DEFAULT 'yes' NOT NULL ")
-			or die("Error: ". mysql_error());
+		mysqli_query(  $db, "ALTER TABLE $table ADD `timestamp` VARCHAR( 4) DEFAULT 'yes' NOT NULL ")
+			or die("Error: ". mysqli_error(  $db ) );
 
 		echo "<li style=\"list-style-type:none;\">Switch ON/OFF for time stamps is added ...</li>";
 
 		// update version
-		mysql_query("
+		mysqli_query(  $db, "
 		INSERT INTO `{$prefix}version` (version) VALUES (1.4995)
-		") or die("Error: ". mysql_error());
+		") or die("Error: ". mysqli_error(  $db ) );
 		echo "<li style=\"list-style-type:none;\">Table ".$prefix."version updated to 1.5alpha_a04_1.</li><p />";
 	}
 }
@@ -353,13 +349,13 @@ global $pixelpost_db_prefix;
 	{
 		// add moterate_comments field to config table
 		$table = $prefix."config";
-		mysql_query("ALTER TABLE $table ADD `moderate_comments` VARCHAR( 3) DEFAULT 'no' NOT NULL ")
-			or die("Error: ". mysql_error());
+		mysqli_query(  $db, "ALTER TABLE $table ADD `moderate_comments` VARCHAR( 3) DEFAULT 'no' NOT NULL ")
+			or die("Error: ". mysqli_error(  $db ) );
 
 		// add publish field to comments table
 		$table = $prefix ."comments";
-		mysql_query("ALTER TABLE $table ADD `publish` VARCHAR( 3) DEFAULT 'yes' NOT NULL ")
-			or die("Error: ". mysql_error());
+		mysqli_query(  $db, "ALTER TABLE $table ADD `publish` VARCHAR( 3) DEFAULT 'yes' NOT NULL ")
+			or die("Error: ". mysqli_error(  $db ) );
 
 		echo "<li style=\"list-style-type:none;\">Comment moderation feature is added ...</li>";
 	} // end if
@@ -375,7 +371,7 @@ global $pixelpost_db_prefix;
 			type VARCHAR(15) NOT NULL default 'normal',
 			PRIMARY KEY  (id)
 		)";
-		mysql_query( $query) or die("Error: ". mysql_error());;
+		mysqli_query(  $db,  $query) or die("Error: ". mysqli_error(  $db ) );;
 
 		// populate the addons table
 		$dir = "../addons/";
@@ -388,8 +384,8 @@ global $pixelpost_db_prefix;
 	{
 			// add clean_url field to config table
 			$table = $prefix."config";
-			mysql_query("ALTER TABLE $table ADD `timestamp` VARCHAR( 4) DEFAULT 'yes' NOT NULL ")
-				or die("Error: ". mysql_error());
+			mysqli_query(  $db, "ALTER TABLE $table ADD `timestamp` VARCHAR( 4) DEFAULT 'yes' NOT NULL ")
+				or die("Error: ". mysqli_error(  $db ) );
 
 			echo "<li style=\"list-style-type:none;\">Switch ON/OFF for time stamps is added ...</li>";
 
@@ -400,15 +396,15 @@ global $pixelpost_db_prefix;
 	{
 		// add clean_url field to config table
 		$table = $prefix."config";
-		mysql_query("ALTER TABLE $table ADD `visitorbooking` VARCHAR( 4) DEFAULT 'yes' NOT NULL ")
-			or die("Error: ". mysql_error());
+		mysqli_query(  $db, "ALTER TABLE $table ADD `visitorbooking` VARCHAR( 4) DEFAULT 'yes' NOT NULL ")
+			or die("Error: ". mysqli_error(  $db ) );
 
 		echo "<li style=\"list-style-type:none;\">Switch ON/OFF for visitor booking is added ...</li>";
 
 		// update version
-		mysql_query("
+		mysqli_query(  $db, "
 		INSERT INTO `{$prefix}version` (version) VALUES (".$newversion.")
-		") or die("Error: ". mysql_error());
+		") or die("Error: ". mysqli_error(  $db ) );
 		echo "<li style=\"list-style-type:none;\">Table ".$prefix."version updated to 1.5Beta.</li>";
 	}	// end if
 	
@@ -421,18 +417,18 @@ function UpgradeTo15final( $prefix,$newversion)
 	{
 		// del clean_url field from config table
 		$table = $prefix."config";
-		mysql_query("ALTER TABLE $table DROP `clean_url` ")
-			or die("Error: ". mysql_error());
+		mysqli_query(  $db, "ALTER TABLE $table DROP `clean_url` ")
+			or die("Error: ". mysqli_error(  $db ) );
 
 		// del clean_url field from pixelpost table
 		$table = $prefix."pixelpost";
-		mysql_query("ALTER TABLE $table DROP `clean_url` ")
-			or die("Error: ". mysql_error());
+		mysqli_query(  $db, "ALTER TABLE $table DROP `clean_url` ")
+			or die("Error: ". mysqli_error(  $db ) );
 
 		// update version
-		mysql_query("
+		mysqli_query(  $db, "
 		INSERT INTO `{$prefix}version` (version) VALUES (1.5)
-		") or die("Error: ". mysql_error());
+		") or die("Error: ". mysqli_error(  $db ) );
 		echo "<li style=\"list-style-type:none;\">Table ".$prefix."version updated to 1.5 Final ...</li>";
 	}
 }
@@ -442,92 +438,92 @@ function UpgradeTo16beta( $prefix, $newversion)
 	global $pixelpost_db_prefix;
 
 	$table = $prefix."tags";
-	mysql_query("CREATE TABLE `$table` (
+	mysqli_query(  $db, "CREATE TABLE `$table` (
 		`img_id` INT NOT NULL ,
 		`tag` TINYTEXT NOT NULL,
 		`alt_tag` TINYTEXT NOT NULL
-		);")or die("Error: ". mysql_error());
+		);")or die("Error: ". mysqli_error(  $db ) );
 
 	// Language stuff
-	mysql_query("ALTER TABLE ".$pixelpost_db_prefix."config ADD `altlangfile` VARCHAR( 100) DEFAULT 'Off' NOT NULL")
-	or die("Error: ". mysql_error());
-	mysql_query("ALTER TABLE ".$pixelpost_db_prefix."pixelpost ADD `alt_headline` VARCHAR( 150) DEFAULT '' NOT NULL,
-		ADD `alt_body` TEXT DEFAULT '' NOT NULL ") or die("Error: ". mysql_error());
-	mysql_query("ALTER TABLE ".$pixelpost_db_prefix."categories ADD `alt_name` VARCHAR( 100) DEFAULT 'default' NOT NULL")
-	or die("Error: ". mysql_error());
+	mysqli_query(  $db, "ALTER TABLE ".$pixelpost_db_prefix."config ADD `altlangfile` VARCHAR( 100) DEFAULT 'Off' NOT NULL")
+	or die("Error: ". mysqli_error(  $db ) );
+	mysqli_query(  $db, "ALTER TABLE ".$pixelpost_db_prefix."pixelpost ADD `alt_headline` VARCHAR( 150) DEFAULT '' NOT NULL,
+		ADD `alt_body` TEXT DEFAULT '' NOT NULL ") or die("Error: ". mysqli_error(  $db ) );
+	mysqli_query(  $db, "ALTER TABLE ".$pixelpost_db_prefix."categories ADD `alt_name` VARCHAR( 100) DEFAULT 'default' NOT NULL")
+	or die("Error: ". mysqli_error(  $db ) );
 
 	// new field used to disable Markdown
-	mysql_query("ALTER TABLE ".$pixelpost_db_prefix."config ADD `markdown` VARCHAR(1) DEFAULT 'f' NOT NULL")
-	or die("Error: ". mysql_error());
+	mysqli_query(  $db, "ALTER TABLE ".$pixelpost_db_prefix."config ADD `markdown` VARCHAR(1) DEFAULT 'f' NOT NULL")
+	or die("Error: ". mysqli_error(  $db ) );
 
 	// creation of primary key on tags table
-	mysql_query("ALTER TABLE ".$pixelpost_db_prefix."tags ADD PRIMARY KEY ( `img_id` , `tag` ( 128), `alt_tag` (128)) ")
-	or die("Error: ". mysql_error());
+	mysqli_query(  $db, "ALTER TABLE ".$pixelpost_db_prefix."tags ADD PRIMARY KEY ( `img_id` , `tag` ( 128), `alt_tag` (128)) ")
+	or die("Error: ". mysqli_error(  $db ) );
 
 	// Drop field moderate comments
-	mysql_query("ALTER TABLE ".$pixelpost_db_prefix."config DROP `moderate_comments`;");
+	mysqli_query(  $db, "ALTER TABLE ".$pixelpost_db_prefix."config DROP `moderate_comments`;");
 
 // global settings disabling comments (default for new picture)
-	mysql_query("ALTER TABLE ".$pixelpost_db_prefix."config ADD `global_comments` ENUM( 'A', 'M', 'F') NOT NULL DEFAULT 'A'")
-	or die("Error: ". mysql_error());
+	mysqli_query(  $db, "ALTER TABLE ".$pixelpost_db_prefix."config ADD `global_comments` ENUM( 'A', 'M', 'F') NOT NULL DEFAULT 'A'")
+	or die("Error: ". mysqli_error(  $db ) );
 	// picture based disabling comments
-	mysql_query("ALTER TABLE ".$pixelpost_db_prefix."pixelpost ADD `comments` ENUM( 'A', 'M', 'F') NOT NULL DEFAULT 'A'")
-	or die("Error: ". mysql_error());
+	mysqli_query(  $db, "ALTER TABLE ".$pixelpost_db_prefix."pixelpost ADD `comments` ENUM( 'A', 'M', 'F') NOT NULL DEFAULT 'A'")
+	or die("Error: ". mysqli_error(  $db ) );
 
 	// Drop field markdown by GeoS
-	mysql_query("ALTER TABLE ".$pixelpost_db_prefix."config DROP `markdown`;")
-	or die("Error: ". mysql_error());
+	mysqli_query(  $db, "ALTER TABLE ".$pixelpost_db_prefix."config DROP `markdown`;")
+	or die("Error: ". mysqli_error(  $db ) );
 
 	// new markdown field
-	mysql_query("ALTER TABLE ".$pixelpost_db_prefix."config ADD `markdown` ENUM( 'F', 'T') NOT NULL DEFAULT 'F'")
-	or die("Error: ". mysql_error());
+	mysqli_query(  $db, "ALTER TABLE ".$pixelpost_db_prefix."config ADD `markdown` ENUM( 'F', 'T') NOT NULL DEFAULT 'F'")
+	or die("Error: ". mysqli_error(  $db ) );
 
 	// new exif
-	mysql_query("ALTER TABLE ".$pixelpost_db_prefix."config ADD `exif` ENUM( 'F', 'T') NOT NULL DEFAULT 'T'")
-	or die("Error: ". mysql_error());
+	mysqli_query(  $db, "ALTER TABLE ".$pixelpost_db_prefix."config ADD `exif` ENUM( 'F', 'T') NOT NULL DEFAULT 'T'")
+	or die("Error: ". mysqli_error(  $db ) );
 
 	// picture based exif
-	mysql_query("ALTER TABLE ".$pixelpost_db_prefix."pixelpost ADD `exif_info` TEXT NULL DEFAULT NULL")
-	or die("Error: ". mysql_error());
+	mysqli_query(  $db, "ALTER TABLE ".$pixelpost_db_prefix."pixelpost ADD `exif_info` TEXT NULL DEFAULT NULL")
+	or die("Error: ". mysqli_error(  $db ) );
 
 	// token field
-	mysql_query("ALTER TABLE ".$pixelpost_db_prefix."config ADD `token` ENUM( 'F', 'T') NOT NULL DEFAULT 'F'")
-	or die("Error: ". mysql_error());
+	mysqli_query(  $db, "ALTER TABLE ".$pixelpost_db_prefix."config ADD `token` ENUM( 'F', 'T') NOT NULL DEFAULT 'F'")
+	or die("Error: ". mysqli_error(  $db ) );
 
 	// token_time
-	mysql_query("ALTER TABLE ".$pixelpost_db_prefix."config ADD `token_time` VARCHAR( 2) NOT NULL DEFAULT '5'")
-	or die("Error: ". mysql_error());
+	mysqli_query(  $db, "ALTER TABLE ".$pixelpost_db_prefix."config ADD `token_time` VARCHAR( 2) NOT NULL DEFAULT '5'")
+	or die("Error: ". mysqli_error(  $db ) );
 
 	// comment field
-	mysql_query("ALTER TABLE ".$pixelpost_db_prefix."config ADD `comment_dsbl` ENUM( 'F', 'T') NOT NULL DEFAULT 'F'")
-	or die("Error: ". mysql_error());
+	mysqli_query(  $db, "ALTER TABLE ".$pixelpost_db_prefix."config ADD `comment_dsbl` ENUM( 'F', 'T') NOT NULL DEFAULT 'F'")
+	or die("Error: ". mysqli_error(  $db ) );
 
 	// comment_timebetween
-	mysql_query("ALTER TABLE ".$pixelpost_db_prefix."config ADD `comment_timebetween` VARCHAR( 3) NOT NULL DEFAULT '30'")
-	or die("Error: ". mysql_error());
+	mysqli_query(  $db, "ALTER TABLE ".$pixelpost_db_prefix."config ADD `comment_timebetween` VARCHAR( 3) NOT NULL DEFAULT '30'")
+	or die("Error: ". mysqli_error(  $db ) );
 
 	// rsstype field
-	mysql_query("ALTER TABLE ".$pixelpost_db_prefix."config ADD `rsstype` ENUM( 'F', 'T', 'O' ,'N') NOT NULL DEFAULT 'T'")
-	or die("Error: ". mysql_error());
+	mysqli_query(  $db, "ALTER TABLE ".$pixelpost_db_prefix."config ADD `rsstype` ENUM( 'F', 'T', 'O' ,'N') NOT NULL DEFAULT 'T'")
+	or die("Error: ". mysqli_error(  $db ) );
 
 	// feeditems
-	mysql_query("ALTER TABLE ".$pixelpost_db_prefix."config ADD `feeditems` VARCHAR( 3) NOT NULL DEFAULT '10'")
-	or die("Error: ". mysql_error());
+	mysqli_query(  $db, "ALTER TABLE ".$pixelpost_db_prefix."config ADD `feeditems` VARCHAR( 3) NOT NULL DEFAULT '10'")
+	or die("Error: ". mysqli_error(  $db ) );
 
 	// no_uri_comments
-	mysql_query("ALTER TABLE ".$pixelpost_db_prefix."config ADD `max_uri_comments` VARCHAR( 3) NOT NULL DEFAULT '5'")
-	or die("Error: ". mysql_error());
+	mysqli_query(  $db, "ALTER TABLE ".$pixelpost_db_prefix."config ADD `max_uri_comments` VARCHAR( 3) NOT NULL DEFAULT '5'")
+	or die("Error: ". mysqli_error(  $db ) );
 
 	// update version
-	mysql_query("
+	mysqli_query(  $db, "
 	INSERT INTO `{$prefix}version` (version) VALUES ($newversion)
 	")
-	or die("Error: ". mysql_error());
+	or die("Error: ". mysqli_error(  $db ) );
 
 	echo "<li style=\"list-style-type:none;\">Table ".$prefix."version updated to $newversion ...</li>";
 }
 
-function UpgradeTo16final( $prefix, $newversion)
+function UpgradeTo16final( $db, $prefix, $newversion)
 {
 	global $pixelpost_db_prefix;
 	
@@ -536,17 +532,17 @@ function UpgradeTo16final( $prefix, $newversion)
 	// ********************************************************************
 	
 	// Drop rsstype field
-	mysql_query("ALTER TABLE ".$pixelpost_db_prefix."config DROP `rsstype`;");
+	mysqli_query(  $db, "ALTER TABLE ".$pixelpost_db_prefix."config DROP `rsstype`;");
 	
 	// rsstype field
-	mysql_query("ALTER TABLE ".$pixelpost_db_prefix."config ADD `rsstype` ENUM( 'F', 'T', 'O' ,'N') NOT NULL DEFAULT 'T'")
-	or die("Error: ". mysql_error());
+	mysqli_query(  $db, "ALTER TABLE ".$pixelpost_db_prefix."config ADD `rsstype` ENUM( 'F', 'T', 'O' ,'N') NOT NULL DEFAULT 'T'")
+	or die("Error: ". mysqli_error(  $db ) );
 
 	// update version
-	mysql_query("
+	mysqli_query(  $db, "
 	INSERT INTO `{$prefix}version` (version) VALUES ($newversion)
 	")
-	or die("Error: ". mysql_error());
+	or die("Error: ". mysqli_error(  $db ) );
 
 	echo "<li style=\"list-style-type:none;\">Table ".$prefix."version updated to $newversion ...</li>";
 }
