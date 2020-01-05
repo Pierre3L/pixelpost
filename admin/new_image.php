@@ -1,8 +1,5 @@
 <?php
 
-// SVN file version:
-// $Id: new_image.php 233 2007-04-08 07:20:51Z blinking8s $
-
 if(!isset($_SESSION["pixelpost_admin"]) || $cfgrow['password'] != $_SESSION["pixelpost_admin"] || $_GET["_SESSION"]["pixelpost_admin"] == $_SESSION["pixelpost_admin"] || $_POST["_SESSION"]["pixelpost_admin"] == $_SESSION["pixelpost_admin"] || $_COOKIE["_SESSION"]["pixelpost_admin"] == $_SESSION["pixelpost_admin"])
 {
 	die ("Try another day!!");
@@ -17,7 +14,7 @@ if($_GET['view'] == "")
 ?>
 
    <form method="post" action="<?php echo $PHP_SELF; ?>?x=save" enctype="multipart/form-data" accept-charset="UTF-8">
-<div id="caption"><b><?php echo $admin_lang_new_image; ?></b></div>
+   <div id="caption"><b><?php echo $admin_lang_new_image; ?></b></div>
    <div class="jcaption"><?php echo $admin_lang_ni_post_a_new_image; ?></div>
    <div class="content">
 	<?php echo $admin_lang_ni_image ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -30,7 +27,7 @@ if($_GET['view'] == "")
   <?php	eval_addon_admin_workspace_menu('new_image_form_def_lang'); 	?>
   <?php echo $admin_lang_ni_select_cat; ?>
 	<?php
-	category_list_as_table($_POST['category'], $cfgrow);
+	category_list_as_table($db, $_POST['category'], $cfgrow);
  	$tz = $cfgrow["timezone"];
  	$cur_time = gmdate("Y-m-d H:i:s",time()+(3600 * $tz));
  	$cur_year = gmdate("Y",time()+(3600 * $tz));
@@ -214,8 +211,7 @@ if($_GET['view'] == "")
     <?php
 
    // save new post
-	if($_GET['x'] == "save")
-	{
+	if($_GET['x'] == "save"){
 		$headline = clean($_POST['headline']);
 		$body =  clean($_POST['body']);
 		if (isset($_POST['alt_headline'])) {
@@ -227,57 +223,45 @@ if($_GET['view'] == "")
 			$alt_body =  "";
 		}
 		$comments_settings = $_POST['allow_comments'];
-	  $datetime =
+	  	$datetime =
              $_POST['post_year']."-".
              $_POST['post_month']."-".
              $_POST['post_day']." ".
              $_POST['post_hour'].":".
              $_POST['post_minute'].":".date('s');
-
-		if( $_POST['autodate'] == 1)
-		{
-			$query = mysql_query("select datetime + INTERVAL 1 DAY from ".$pixelpost_db_prefix."pixelpost order by datetime desc limit 1");
-			$row = mysql_fetch_row($query);
+		if( $_POST['autodate'] == 1){
+			$query = mysqli_query($db, "select datetime + INTERVAL 1 DAY from ".$pixelpost_db_prefix."pixelpost order by datetime desc limit 1");
+			$row = mysqli_fetch_row($query);
 			if( $row) $datetime = $row[0];	// If there is none, will default to the other value
-		}
-		else if( $_POST['autodate'] == 2)
-		{
+		}else if( $_POST['autodate'] == 2){
 			$datetime = gmdate("Y-m-d H:i:s",time()+(3600 * $tz));
-		}
-		else if ($_POST['autodate'] == 3)// exifdate
-		{
+		}else if ($_POST['autodate'] == 3){// exifdate
 			// New, JFK: post date from EXIF
 			// delay action to later point. We don't know the filename yet...
 			// just set a flag so we know what to do later on
 			$postdatefromexif = TRUE;
 		};
-
-	  if($headline == "")
-	  {
+		if($headline == ""){
 			echo  "
-  		 <div id='warning'>$admin_lang_ni_missing_data</div><p/>
-       <script type='text/javascript'>
-			 <!--
-			 document.location = '#warnings'
-			 -->
-		 </script>";
-	    exit;
-	  }
-
-	  // prepare the file
-		if($_FILES['userfile'] != "")
-		{
+  		 	<div id='warning'>$admin_lang_ni_missing_data</div><p/>
+       		<script type='text/javascript'>
+			<!--
+			document.location = '#warnings'
+			-->
+		 	</script>";
+	    	exit;
+	    }
+		// prepare the file
+		if($_FILES['userfile'] != ""){
 			$userfile = strtolower($_FILES['userfile']['name']);
 			$tz = $cfgrow['timezone'];
-
-			if ($cfgrow['timestamp']=='yes')
+			if ($cfgrow['timestamp']=='yes'){
 				$time_stamp_r = gmdate("YmdHis",time()+(3600 * $tz)) .'_';
-
+			}
 			$uploadfile = $upload_dir .$time_stamp_r .$userfile;
 			// NEW WORKSPACE ADDED
-      eval_addon_admin_workspace_menu('image_upload_start');
-			if(move_uploaded_file($_FILES['userfile']['tmp_name'], $uploadfile))
-			{
+       		eval_addon_admin_workspace_menu('image_upload_start');
+			if(move_uploaded_file($_FILES['userfile']['tmp_name'], $uploadfile)){
 				chmod($uploadfile, 0644);
 				$result = check_upload($_FILES['userfile']['error']);
 				$filnamn =strtolower($_FILES['userfile']['name']);
@@ -288,24 +272,21 @@ if($_GET['view'] == "")
 				//Get the exif data so we can store it.
 				// what about files that don't have exif data??
 				include_once('../includes/functions_exif.php');
-				$exif_info_db = serialize_exif ($uploadfile);
-				if($postdatefromexif == TRUE)
-				{
+				$exif_info_db = serialize_exif($db, $uploadfile);
+				if($postdatefromexif == TRUE){
 					$exif_result=unserialize_exif($exif_info_db);
 					$exposuredatetime = $exif_result['DateTimeOriginalSubIFD'];
-					if ($exposuredatetime!='')
-					{
+					if ($exposuredatetime!=''){
 						list($exifyear,$exifmonth,$exifday,$exifhour,$exifmin, $exifsec) = split('[: ]', $exposuredatetime);
-				    $datetime = date("Y-m-d H:i:s", mktime($exifhour, $exifmin, $exifsec, $exifmonth, $exifday, $exifyear));
-				  }
-				  else
-				  	$datetime = gmdate("Y-m-d H:i:s",time()+(3600 * $tz));
-	      }
-	      // NEW WORKSPACE ADDED
-        eval_addon_admin_workspace_menu('image_upload_succesful');
-			}
-			else
-			{
+				    	$datetime = date("Y-m-d H:i:s", mktime($exifhour, $exifmin, $exifsec, $exifmonth, $exifday, $exifyear));
+				  	}else{
+						$datetime = gmdate("Y-m-d H:i:s",time()+(3600 * $tz));
+					}
+	      		}
+				  // NEW WORKSPACE ADDED
+			
+        		eval_addon_admin_workspace_menu('image_upload_succesful');
+			}else{
 				// something went wrong, try to describe what
 				if ($_FILES['userfile']['error']!='0')
 					$result = check_upload($_FILES['userfile']['error']);
@@ -318,31 +299,24 @@ if($_GET['view'] == "")
 				echo "</div><hr/>";
 	 			$status = "no";
 	 			// NEW WORKSPACE ADDED
-        eval_addon_admin_workspace_menu('image_upload_failed');
+        		eval_addon_admin_workspace_menu('image_upload_failed');
 			} // end move
 		} // end prepare of file ($_FILES['userfile'] != "")
-
-	  // insert post in mysql
+	    // insert post in mysql
+		print("insert post in mysql");
 		$image = $filnamn;
-		if($status == "ok")
-		{
+		if($status == "ok"){
 			$query = "insert into ".$pixelpost_db_prefix."pixelpost(datetime,headline,body,image,alt_headline,alt_body,comments,exif_info)
 			VALUES('$datetime','$headline','$body','$image','$alt_headline','$alt_body','$comments_settings','$exif_info_db')";
-			$result = mysql_query($query) || die("Error: ".mysql_error().$admin_lang_ni_db_error);
-
-	    $theid = mysql_insert_id(); //Gets the id of the last added image to use in the next "insert"
-
-			if (isset($_POST['category']))
-			{
-				foreach($_POST['category'] as $val)
-				{
+			$result = mysqli_query($db, $query) || die("Error: ".mysqli_error($db).$admin_lang_ni_db_error);
+			$theid = mysqli_insert_id($db); //Gets the id of the last added image to use in the next "insert"
+			if (isset($_POST['category'])){
+				foreach($_POST['category'] as $val){
 					$query  ="INSERT INTO ".$pixelpost_db_prefix."catassoc(id,cat_id,image_id) VALUES(NULL,'$val','$theid')";
-					$result = mysql_query($query) || die("Error: ".mysql_error());
+					$result = mysqli_query($db, $query) || die("Error: ".mysql_error($db));
 				}
-	    }
-	    // done
-
-
+	    	}
+	    	// done
 			// workspace: image_uploaded
 			eval_addon_admin_workspace_menu('image_uploaded');
 			$headline = pullout($_POST['headline']);
@@ -350,36 +324,30 @@ if($_GET['view'] == "")
 			$headline = htmlspecialchars($headline,ENT_QUOTES);
 			$body = htmlspecialchars($body,ENT_QUOTES);
 			$to_echo = "
-			 <div id='caption'>$admin_lang_ni_posted: $headline</div>
-			 <div class='content'>$body<br/>
-			 $datetime<br/><a href=\"$PHP_SELF?view=images&id=$theid\">[$admin_lang_imgedit_edit]</a><p>
-			 ";
+		    	<div id='caption'>$admin_lang_ni_posted: $headline</div>
+			 	<div class='content'>$body<br/>
+			 	$datetime<br/><a href=\"$PHP_SELF?view=images&id=$theid\">[$admin_lang_imgedit_edit]</a><p>
+			";
 			// Check if the '12c' is selected as the crop then add 3 buttons to the page '+', '-', and 'crop'
-			if ($cfgrow['crop']=='12c')
-			{
+			if ($cfgrow['crop']=='12c'){
 				$to_echo .="
-							 $admin_lang_ni_crop_nextstep<br/>
-							 <input type='button' name='Submit1' value='".$txt['cropimage']."' onclick=\"cropCheck('def','".$filnamn ."');\" />
-							 <input type='button' name='Submit3' value='".$txt['smaller']."' onmousedown=\"cropZoom('in');\" onmouseup='stopZoom();' />
-							 <input type='button' name='Submit4' value='".$txt['bigger']."' onmousedown=\"cropZoom('out');\" onmouseup='stopZoom();' />
-							 <br/> ";
+					$admin_lang_ni_crop_nextstep<br/>
+					<input type='button' name='Submit1' value='".$txt['cropimage']."' onclick=\"cropCheck('def','".$filnamn ."');\" />
+					<input type='button' name='Submit3' value='".$txt['smaller']."' onmousedown=\"cropZoom('in');\" onmouseup='stopZoom();' />
+					<input type='button' name='Submit4' value='".$txt['bigger']."' onmousedown=\"cropZoom('out');\" onmouseup='stopZoom();' />
+					<br/> ";
 			};
 			echo $to_echo; // tag of content div still open
 
 			//create thumbnail
-			if(function_exists('gd_info'))
-			{
+			if(function_exists('gd_info')){
 				$gd_info = gd_info();
-
-				if($gd_info != "")
-				{
+				if($gd_info != ""){
 					$thumbnail = $filnamn;
 					$thumbnail = createthumbnail($thumbnail);
 					eval_addon_admin_workspace_menu('thumb_created');
-
 					// if crop is not '12c' use the oldfashioned crop
-					if ($cfgrow['crop']!='12c')
-					{
+					if ($cfgrow['crop']!='12c'){
 						if ($show_image_after_upload)
 						echo "<img src='../images/$filnamn'  />";
 						echo "</div><!-- end of content div -->" ; // close content div
@@ -387,11 +355,10 @@ if($_GET['view'] == "")
 					/* else it is '12c' crop and show cropdiv and the cropping frame
 							at the bottom of the page.
 					*/
-					else
-					{
-					// set the size of the crop frame according to the uploaded image
-					setsize_cropdiv ($filnamn);
-					//--------------------------------------------------------
+					else{
+						// set the size of the crop frame according to the uploaded image
+						setsize_cropdiv ($filnamn);
+						//--------------------------------------------------------
 						$for_echo ="
 							<img src='../images/$filnamn' id='myimg' />
 							<div id='cropdiv'>

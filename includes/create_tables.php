@@ -26,6 +26,7 @@ function Show_username_password(){
 
 function Create13Tables( $db, $prefix)
 {
+	$newversion = 2.0;
 	echo "<li style=\"list-style-type:none;\"><strong>Automatic creation of tables</strong></li><p />";
 	// Config table
 	mysqli_query(  $db, "
@@ -45,9 +46,20 @@ function Create13Tables( $db, $prefix)
 		thumbheight int(11) NOT NULL,
 		thumbnumber int(11) NOT NULL,
 		compression int(11) NOT NULL,
-		dateformat varchar(30) NOT NULL default ''
-	)
-	") or die( "Error: ". mysqli_error( $db ));
+		dateformat varchar(30) NOT NULL default '',
+		altlangfile VARCHAR( 100) DEFAULT 'Off' NOT NULL,
+		global_comments ENUM( 'A', 'M', 'F') NOT NULL DEFAULT 'A',
+		markdown ENUM( 'F', 'T') NOT NULL DEFAULT 'F',
+		exif ENUM( 'F', 'T') NOT NULL DEFAULT 'T',		
+		token ENUM( 'F', 'T') NOT NULL DEFAULT 'F',
+		token_time VARCHAR( 2) NOT NULL DEFAULT '5',
+		comment_dsbl ENUM( 'F', 'T') NOT NULL DEFAULT 'F',
+		comment_timebetween VARCHAR( 3) NOT NULL DEFAULT '30',
+		feeditems VARCHAR( 3) NOT NULL DEFAULT '10',
+		max_uri_comments VARCHAR( 3) NOT NULL DEFAULT '5',
+		rsstype ENUM( 'F', 'T', 'O' ,'N') NOT NULL DEFAULT 'T'		
+		)
+	") or die( "Error {$prefix}config: ". mysqli_error( $db ));
 	echo "<li style=\"list-style-type:none;\">Table {$prefix}config created ...</li>";
 
 	// Categories Table
@@ -58,10 +70,10 @@ function Create13Tables( $db, $prefix)
 		alt_name VARCHAR(100) DEFAULT 'default' NOT NULL,
 		KEY id (id)
 	)
-	") or die("Error: ". mysqli_error( $db ));
+	") or die("Error {$prefix}categories: ". mysqli_error( $db ));
 
 	mysqli_query(  $db, "
-	INSERT INTO {$prefix}categories VALUES (0, 'default')
+	INSERT INTO {$prefix}categories VALUES (0, 'default', 'default' )
 	") or die("Error: ". mysqli_error(  $db ) );
 	echo "<li style=\"list-style-type:none;\">Table {$prefix}categories created ...</li>";
 
@@ -74,9 +86,13 @@ function Create13Tables( $db, $prefix)
 		body text NOT NULL,
 		image text NOT NULL,
 		category varchar(150) NOT NULL default '',
+		alt_headline VARCHAR(150) DEFAULT '' NOT NULL,
+		alt_body TEXT NOT NULL, 
+		comments ENUM( 'A', 'M', 'F') NOT NULL DEFAULT 'A',
+		exif_info TEXT NULL DEFAULT NULL,
 		KEY id (id)
 	)
-	") or die("Error: ". mysqli_error(  $db ) );
+	") or die("Error {$prefix}pixelpost: ". mysqli_error(  $db ) );
 	echo "<li style=\"list-style-type:none;\">Table {$prefix}pixelpost created ...</li>";
 
 	// Comments table
@@ -91,7 +107,7 @@ function Create13Tables( $db, $prefix)
 		url varchar(40) NOT NULL default '',
 		KEY id (id)
 	)
-	") or die("Error: ". mysqli_error(  $db ) );
+	") or die("Error {$prefix}comments: ". mysqli_error(  $db ) );
 	echo "<li style=\"list-style-type:none;\">Table {$prefix}comments created ...</li>";
 
 	// Visitors table
@@ -106,8 +122,47 @@ function Create13Tables( $db, $prefix)
 		ruri varchar(150) NOT NULL default '',
 		PRIMARY KEY  (id)
 	)
-	") or die("Error: ". mysqli_error(  $db ) );
+	") or die("Error {$prefix}visitors: ". mysqli_error(  $db ) );
 	echo "<li style=\"list-style-type:none;\">Table {$prefix}visitors created ...</li>";
+
+	// Multiple Categories support
+	mysqli_query(  $db, "
+	CREATE TABLE IF NOT EXISTS {$prefix}catassoc (
+		id int(11) NOT NULL auto_increment,
+		cat_id int(11) NOT NULL default '0',
+		image_id int(11) NOT NULL default '0',
+		PRIMARY KEY  (id),
+		KEY cat_id (cat_id),
+		KEY image_id (image_id)
+	)
+	") or die("Error {$prefix}catassoc: ". mysqli_error(  $db ) );
+	echo "<li style=\"list-style-type:none;\">Table ".$prefix."catassoc created ...</li>";
+
+	// Tags
+	mysqli_query(  $db, "
+	CREATE TABLE IF NOT EXISTS {$prefix}tags (
+		img_id int(11) NOT NULL,
+		tag TINYTEXT NOT NULL,
+		alt_tag TINYTEXT NOT NULL,
+		PRIMARY KEY ( img_id, tag (64), alt_tag (64) )) 
+	") or die("Error {$prefix}tags: ". mysqli_error(  $db ) );
+	echo "<li style=\"list-style-type:none;\">Table ".$prefix."tags created ...</li>";
+
+	// Versiom
+	mysqli_query(  $db, "
+	CREATE TABLE IF NOT EXISTS {$prefix}version (
+		id int(11) unsigned NOT NULL auto_increment,
+		upgrade_date timestamp NOT NULL,
+		version float NOT NULL default '0',
+		PRIMARY KEY (id),
+		KEY version (version)
+	)") or die("Error {$prefix}version: ". mysqli_error(  $db ) );
+
+ 	// update version
+ 	mysqli_query(  $db, "INSERT INTO `{$prefix}version` (version) VALUES ($newversion)")or die("Error 22: ". mysqli_error(  $db ) );
+ 	echo "<li style=\"list-style-type:none;\">Table ".$prefix."version updated to $newversion ...</li>";
+
+
 }
 
 function Set_Configuration($db, $prefix)

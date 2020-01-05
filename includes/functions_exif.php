@@ -27,7 +27,7 @@ function flatten_array($array,$keyname='')
 	return $tmp;
 }
 
-function serialize_exif ($uploaded_file)
+function serialize_exif ($db, $uploaded_file)
 {
 	//$exif_tmp = read_exif_data_raw($_FILES['upload_file']['tmp_name'],0);
 	$exif_tmp = read_exif_data_raw($uploaded_file,0);
@@ -40,7 +40,7 @@ function serialize_exif ($uploaded_file)
 	foreach ($flat_exif_tmp as $key=>$value)	$flat_exif_tmp[$key]=trim($value);
 	$exif_info=serialize($flat_exif_tmp);
 	// we need to escape the string before saving it to the db
-	$exif_info = mysql_real_escape_string($exif_info);
+	$exif_info = mysqli_real_escape_string($db, $exif_info);
 	return $exif_info;
 }
 

@@ -332,21 +332,21 @@ function &reduceExif($exifvalue)
 
 
 // categories as table
-function category_list_as_table($categories, $cfgrow)
+function category_list_as_table($db, $categories, $cfgrow)
 {
 	global $pixelpost_db_prefix;
 
 	if(!is_array($categories))	$categories = array();
   // get the id and name of the first entered category, default category.
-  $query = mysqli_query("select * from ".$pixelpost_db_prefix."categories order by id asc LIMIT 0,1");
+  $query = mysqli_query($db, "select * from ".$pixelpost_db_prefix."categories order by id asc LIMIT 0,1");
   list($firstid,$firstname) = mysqli_fetch_row($query);
   $getid = $_GET['id'];
  // begin of category-list as a table
-	$query = mysqli_query("select t1.id, name, alt_name, image_id from ".$pixelpost_db_prefix."categories as t1 left join ".$pixelpost_db_prefix."catassoc t2 on t2.cat_id = t1.id and t2.image_id='$getid' order by t1.name");
+	$query = mysqli_query($db, "select t1.id, name, alt_name, image_id from ".$pixelpost_db_prefix."categories as t1 left join ".$pixelpost_db_prefix."catassoc t2 on t2.cat_id = t1.id and t2.image_id='$getid' order by t1.name");
 	while(list($id,$name) = mysqli_fetch_row($query))
 	{
 		echo "<table id='cattable'><tr>";
-		$query = mysqli_query("select t1.id, name, alt_name, image_id from ".$pixelpost_db_prefix."categories as t1 left join ".$pixelpost_db_prefix."catassoc t2 on t2.cat_id = t1.id and t2.image_id='$getid' order by t1.name");
+		$query = mysqli_query($db, "select t1.id, name, alt_name, image_id from ".$pixelpost_db_prefix."categories as t1 left join ".$pixelpost_db_prefix."catassoc t2 on t2.cat_id = t1.id and t2.image_id='$getid' order by t1.name");
 		while(list($id,$name,$alt_name,$image_id) = mysqli_fetch_row($query))
 		{
 			$name = pullout($name);
