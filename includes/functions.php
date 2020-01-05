@@ -217,10 +217,10 @@ function createthumbnail($file)
   chmod($thumbimage,0644);
 }
 
-function sql_query($str)
+function sql_query($db, $str)
 {
 	$query = "$str";
-	$result = mysqli_query($query) || die(mysqli_error());
+	$result = mysqli_query($db, $query) || die(mysqli_error($db));
 }
 
 function clean($str)

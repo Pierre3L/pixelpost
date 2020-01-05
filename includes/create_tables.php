@@ -55,6 +55,7 @@ function Create13Tables( $db, $prefix)
 	CREATE TABLE IF NOT EXISTS {$prefix}categories (
 		id int(11) NOT NULL auto_increment,
 		name varchar(100) NOT NULL default '',
+		alt_name VARCHAR(100) DEFAULT 'default' NOT NULL,
 		KEY id (id)
 	)
 	") or die("Error: ". mysqli_error( $db ));
