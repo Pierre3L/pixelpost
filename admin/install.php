@@ -11,12 +11,12 @@ if (!$db) {
     echo "Debugging error: " . mysqli_connect_error() . PHP_EOL;
     exit;
 }
-else{
-	echo "Success: A proper connection to MySQL was made! The my_db database is great.<br>" . PHP_EOL;
-	echo "Host information: " . mysqli_get_host_info($db) . PHP_EOL;
-	// mysqli_close($db);
-	// exit;
-}
+// else{
+// 	echo "Success: A proper connection to MySQL was made! The my_db database is great.<br>" . PHP_EOL;
+// 	echo "Host information: " . mysqli_get_host_info($db) . PHP_EOL;
+// 	// mysqli_close($db);
+// 	// exit;
+// }
 
 // This will be 0 for clean install, 1.3 for that version, 1.4+ for newer versions...
 $installed_version = Get_Pixelpost_Version( $db, $pixelpost_db_prefix );
@@ -145,8 +145,6 @@ switch( $installed_version) {
 		exit();
 	break;
 }
-print("The tables are all set");
-
 echo "<b>The tables are all set.</b><p />";
 // new foldercheck routine.
 
@@ -202,6 +200,7 @@ We would like to, but are not able to guarantee you eternal happiness because of
 
 <?php
 }
+mysqli_close($db);
 ?>
 </div>
 </body></html>
