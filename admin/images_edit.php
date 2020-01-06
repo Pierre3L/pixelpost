@@ -112,7 +112,7 @@ if($_GET['view'] == "images"){
 			$tags_array = implode('", "', $tags_arr);
 			$where .= ' AND (tag IN ("'.$tags_array.'") OR alt_tag IN ("'.$tags_array.'"))';
 			$query .= $where;
-			if(count($idz) > 0)	$query  = sql_query($query);
+			if(count($idz) > 0)	$query  = sql_query($db, $query);
 		}else{
 			$idz = $_POST['moderate_image_boxes'];
 			$query = "INSERT INTO ".$pixelpost_db_prefix."tags VALUES ";
@@ -140,7 +140,7 @@ if($_GET['view'] == "images"){
 				}
 			}
 			$query .= $values[0];
-			if(count($idz) > 0)	$query  = @mysqli_query($query);
+			if(count($idz) > 0)	$query  = @mysqli_query($db, $query);
 		}
 	}
 
