@@ -26,3 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 INFORMATION
 -------------------------------------------------------------------------
 Update pixelpost code to operate with php 7.2 and mysql 5.7
+
+See https://github.com/Pierre3L/pixelpost/blob/master/doc/update_to_php7_mysql5.jpg
+
+
