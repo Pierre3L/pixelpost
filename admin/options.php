@@ -142,6 +142,7 @@ if($_GET['view'] == "options") {
 			$upquery = sql_query($db, "update ".$pixelpost_db_prefix."config set thumbwidth='".$_POST['thumbwidth']."', thumbheight='".$_POST['thumbheight']."'");
 		break;
 
+		//todo Verificar nao funciona
 		case "updatethumbnails":
 			if(function_exists('gd_info')){
 				$thumbnail_counter = 0;
@@ -149,9 +150,9 @@ if($_GET['view'] == "options") {
 				if($handle = opendir($dir)){
 					while (false !== ($file = readdir($handle))){
 						if(is_file($dir."/".$file)){
-							$thumbnail = createthumbnail($file);
-							$thumbnail_counter++;
-						} // if
+					 		$thumbnail = createthumbnail($file);
+					 		$thumbnail_counter++;
+					 	} // if
 					} // while
 					closedir($handle);
 					echo "<div class='jcaption'>$admin_lang_optn_thumb_updated</div><div class='content confirm'>$admin_lang_done $thumbnail_counter $admin_lang_optn_updated </div><p />";

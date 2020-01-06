@@ -184,7 +184,7 @@ function createthumbnail($db, $file){
     	}
 
     	if($cfgrow['crop'] == "yes" | $cfgrow['crop'] == "12c"){
-      		// crop
+      	// 	// crop
       		$tmp_img = imagecreatetruecolor($max_width,$max_height);
       		if(function_exists(imagecopyresampled)){
         		imagecopyresampled($tmp_img, $img, 0,0,0,0,$max_width,$max_height,$max_width,$max_height);
