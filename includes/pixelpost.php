@@ -48,7 +48,8 @@ $pixelpost_db_pixelpost = "salmara"; // database
 $pixelpost_db_prefix = "pixelpost_"; // table prefix, leave as is unless you want to install multiple blogs on the same database
 
 // Pixelpost Version
+// $version = "MS42LjAgKGluIHRoZSByaWdodCBkaXJlY3Rpb24pIC0gQXByaWwgMjAwNw=="; Original: "1.6.0 (in the right direction) - April 2007"
+// print( base64_encode("2.0.0 (Update to php7/Mysql5) - January 2020 ") ); 
 
-$version = "MS42LjAgKGluIHRoZSByaWdodCBkaXJlY3Rpb24pIC0gQXByaWwgMjAwNw==";
-
+$version = "Mi4wLjAgKFVwZGF0ZSB0byBwaHA3L015c3FsNSkgLSBKYW51YXJ5IDIwMjAg";
 ?>
