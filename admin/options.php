@@ -91,7 +91,7 @@ if($_GET['view'] == "options") {
 			// RSS settings
 			$upquery = sql_query($db, "update ".$pixelpost_db_prefix."config set rsstype='".$_POST['rsstype']."', feeditems='".(int) $_POST['feeditems']."'");
 			// Refresh the settings
-			$cfgrow = sql_array("SELECT * FROM ".$pixelpost_db_prefix."config");
+			$cfgrow = sql_array($db, "SELECT * FROM ".$pixelpost_db_prefix."config");
 		}// end frist page
 	} //end update all
 	//=========== END OF PAGE ONE: GENERAL ===========
@@ -167,7 +167,6 @@ if($_GET['view'] == "options") {
 
 
 	if($_GET['optaction'] != ""){
-		print('+==================optaction');	
 		if ($lang_error==0){
 			echo "<div class='jcaption'>$admin_lang_optn_upd_done</div><div class='content confirm'>$admin_lang_done <a href='$PHP_SELF?view=options'>$admin_lang_reload";
 			if ($_POST['token_time'] < 1 && $_GET['optionsview'] == 'antispam') {
@@ -295,7 +294,6 @@ if($_GET['view'] == "options") {
 				}
 			closedir($handle);
 		}
-		print("oooo00000000000000000000");
 		echo "
 			</select></div>
 			<div class='jcaption'>
@@ -324,6 +322,7 @@ if($_GET['view'] == "options") {
 		if ($cfgrow['timezone']=='0')
 			echo "<option selected='selected' value='0'>GMT</option>";
 		else {
+			echo "<option value='0'>GMT</option>";
 			$timezonevalue = $cfgrow['timezone'];
 			if ($timezonevalue >0) $timezonevalue = '+ ' .abs($timezonevalue);
 			else $timezonevalue = '- ' .abs($timezonevalue);

@@ -57,7 +57,11 @@ function Create13Tables( $db, $prefix)
 		comment_timebetween VARCHAR( 3) NOT NULL DEFAULT '30',
 		feeditems VARCHAR( 3) NOT NULL DEFAULT '10',
 		max_uri_comments VARCHAR( 3) NOT NULL DEFAULT '5',
-		rsstype ENUM( 'F', 'T', 'O' ,'N') NOT NULL DEFAULT 'T'		
+		rsstype ENUM( 'F', 'T', 'O' ,'N') NOT NULL DEFAULT 'T',
+		timezone FLOAT DEFAULT 0 NOT NULL,
+		htmlemailnote CHAR(3) DEFAULT 'yes',
+		timestamp VARCHAR(4) DEFAULT 'yes' NOT NULL,
+		visitorbooking VARCHAR( 4) DEFAULT 'yes' NOT NULL		
 		)
 	") or die( "Error {$prefix}config: ". mysqli_error( $db ));
 	echo "<li style=\"list-style-type:none;\">Table {$prefix}config created ...</li>";
@@ -159,9 +163,8 @@ function Create13Tables( $db, $prefix)
 	)") or die("Error {$prefix}version: ". mysqli_error(  $db ) );
 
  	// update version
- 	mysqli_query(  $db, "INSERT INTO `{$prefix}version` (version) VALUES ($newversion)")or die("Error 22: ". mysqli_error(  $db ) );
+ 	mysqli_query(  $db, "INSERT INTO {$prefix}version (version) VALUES ($newversion)") or die("Error 22: ". mysqli_error(  $db ) );
  	echo "<li style=\"list-style-type:none;\">Table ".$prefix."version updated to $newversion ...</li>";
-
 
 }
 
