@@ -267,7 +267,6 @@ if($_GET['view'] == "options") {
 			closedir($handle);
 		}
 		echo "</select><p />";
-		print("<br>PIERRE");
 
 		// Alternative language settings
 		echo "$admin_lang_optn_alt_lang<br />
@@ -296,7 +295,7 @@ if($_GET['view'] == "options") {
 				}
 			closedir($handle);
 		}
-		print("oooo");
+		print("oooo00000000000000000000");
 		echo "
 			</select></div>
 			<div class='jcaption'>
@@ -346,7 +345,7 @@ if($_GET['view'] == "options") {
  		}else{
 			echo "<option value=\"A\">$admin_lang_optn_cmnt_mod_allowed</option><option value=\"M\">$admin_lang_optn_cmnt_mod_moderation</option><option selected=\"selected\" value=\"F\">$admin_lang_optn_cmnt_mod_forbidden</option>";
  		}
-		echo"
+    	echo"
 			</select></div>
 			<div class='jcaption'>
 			$admin_lang_optn_sendemail

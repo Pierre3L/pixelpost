@@ -575,8 +575,8 @@ if(!isset($_GET['x']) /*$_GET['x'] == ""*/)
 			list($local_width,$local_height,$type,$attr) = getimagesize("thumbnails/thumb_$image_name");
 			$thumbnail_row = "$behind_thumbs<a href='$showprefix$image_id'><img src='thumbnails/thumb_$image_name' alt='$image_title' title='$image_title' class='current-thumbnail' width='$local_width' height='$local_height' /></a>$ahead_thumbs";
 			$thumbnail_row_reverse = "$ahead_thumbs_reverse<a href='$showprefix$image_id'><img src='thumbnails/thumb_$image_name' alt='$image_title' title='$image_title' class='current-thumbnail' width='$local_width' height='$local_height' /></a>$behind_thumbs_reverse";
-			$tpl = ereg_replace("<IMAGE_THUMBNAIL_ROW>",$thumbnail_row,$tpl);
-			$tpl = ereg_replace("<IMAGE_THUMBNAIL_ROW_REV>",$thumbnail_row_reverse,$tpl);
+			$tpl = preg_replace("/<IMAGE_THUMBNAIL_ROW>/",$thumbnail_row,$tpl);
+			$tpl = preg_replace("/<IMAGE_THUMBNAIL_ROW_REV>/",$thumbnail_row_reverse,$tpl);
 		} // gd_info()
 	} // func exist
 
@@ -602,48 +602,48 @@ if(!isset($_GET['x']) /*$_GET['x'] == ""*/)
 	if ($image_category_number >1)	$image_categoryword = "$lang_category_plural ";
 	else	$image_categoryword = "$lang_category_singular ";
 
-	$tpl = ereg_replace("<SITE_TITLE>",$pixelpost_site_title,$tpl);
-	$tpl = ereg_replace("<SITE_URL>",$cfgrow['siteurl'],$tpl);
-	$tpl = ereg_replace("<IMAGE_CATEGORY>",$image_categoryword." ".$image_category_all,$tpl);
+	$tpl = preg_replace("/<SITE_TITLE>/",$pixelpost_site_title,$tpl);
+	$tpl = preg_replace("/<SITE_URL>/",$cfgrow['siteurl'],$tpl);
+	$tpl = preg_replace("/<IMAGE_CATEGORY>/",$image_categoryword." ".$image_category_all,$tpl);
 	// for paged_archive addon
-	$tpl = ereg_replace("<IMAGE_CATEGORY_PAGED>",$image_categoryword." ".$image_category_all_paged,$tpl);
-	$tpl = ereg_replace("<IMAGE_DATE_YEAR_FULL>",$image_date_year_full,$tpl);
-	$tpl = ereg_replace("<IMAGE_DATE_YEAR>",$image_date_year,$tpl);
-	$tpl = ereg_replace("<IMAGE_DATE_MONTH>",$image_date_month,$tpl);
-	$tpl = ereg_replace("<IMAGE_DATE_DAY>",$image_date_day,$tpl);
-	$tpl = ereg_replace("<IMAGE_THUMBNAIL>",$image_thumbnail,$tpl);
+	$tpl = preg_replace("/<IMAGE_CATEGORY_PAGED>/",$image_categoryword." ".$image_category_all_paged,$tpl);
+	$tpl = preg_replace("/<IMAGE_DATE_YEAR_FULL>/",$image_date_year_full,$tpl);
+	$tpl = preg_replace("/<IMAGE_DATE_YEAR>/",$image_date_year,$tpl);
+	$tpl = preg_replace("/<IMAGE_DATE_MONTH>/",$image_date_month,$tpl);
+	$tpl = preg_replace("/<IMAGE_DATE_DAY>/",$image_date_day,$tpl);
+	$tpl = preg_replace("/<IMAGE_THUMBNAIL>/",$image_thumbnail,$tpl);
 	// thumbnail no link
-	$tpl = ereg_replace("<IMAGE_THUMBNAIL_NO_LINK>",$image_thumbnail_no_link,$tpl);
-	$tpl = ereg_replace("<IMAGE_DATE>",$image_date,$tpl);
-	$tpl = ereg_replace("<IMAGE_TIME>",$image_time,$tpl);
-	$tpl = ereg_replace("<IMAGE_NAME>",$image_name,$tpl);
-	$tpl = ereg_replace("<IMAGE_TITLE>",$image_title,$tpl);
-	$tpl = ereg_replace("<IMAGE_DATETIME>",$image_datetime_formatted,$tpl);
-	$tpl = ereg_replace("<IMAGE_NOTES>",$image_notes,$tpl);
+	$tpl = preg_replace("/<IMAGE_THUMBNAIL_NO_LINK>/",$image_thumbnail_no_link,$tpl);
+	$tpl = preg_replace("/<IMAGE_DATE>/",$image_date,$tpl);
+	$tpl = preg_replace("/<IMAGE_TIME>/",$image_time,$tpl);
+	$tpl = preg_replace("/<IMAGE_NAME>/",$image_name,$tpl);
+	$tpl = preg_replace("/<IMAGE_TITLE>/",$image_title,$tpl);
+	$tpl = preg_replace("/<IMAGE_DATETIME>/",$image_datetime_formatted,$tpl);
+	$tpl = preg_replace("/<IMAGE_NOTES>/",$image_notes,$tpl);
 	// image notes without HTML tags and double quotes
 	$image_notes_clean = strip_tags($image_notes);
         $image_notes_clean = htmlspecialchars($image_notes_clean,ENT_QUOTES);
-     	$tpl = ereg_replace("<IMAGE_NOTES_CLEAN>",$image_notes_clean,$tpl);
+     	$tpl = preg_replace("/<IMAGE_NOTES_CLEAN>/",$image_notes_clean,$tpl);
 	// end image notes without HTML tags
-	$tpl = ereg_replace("<IMAGE_ID>",$image_id,$tpl);
-	$tpl = ereg_replace("<IMAGE_PERMALINK>",$image_permalink,$tpl);
-	$tpl = ereg_replace("<IMAGE_PREVIOUS_LINK>",$image_previous_link,$tpl);
-	$tpl = ereg_replace("<IMAGE_PREVIOUS_THUMBNAIL>",$image_previous_thumbnail,$tpl);
-	$tpl = ereg_replace("<IMAGE_PREVIOUS_ID>",$image_previous_id,$tpl);
-	$tpl = ereg_replace("<IMAGE_PREVIOUS_TITLE>",$image_previous_title,$tpl);
-	$tpl = ereg_replace("<IMAGE_NEXT_LINK>",$image_next_link,$tpl);
-	$tpl = ereg_replace("<IMAGE_NEXT_ID>",$image_next_id,$tpl);
-	$tpl = ereg_replace("<IMAGE_NEXT_TITLE>",$image_next_title,$tpl);
-	$tpl = ereg_replace("<IMAGE_NEXT_THUMBNAIL>",$image_next_thumbnail,$tpl);
+	$tpl = preg_replace("/<IMAGE_ID>/",$image_id,$tpl);
+	$tpl = preg_replace("/<IMAGE_PERMALINK>/",$image_permalink,$tpl);
+	$tpl = preg_replace("/<IMAGE_PREVIOUS_LINK>/",$image_previous_link,$tpl);
+	$tpl = preg_replace("/<IMAGE_PREVIOUS_THUMBNAIL>/",$image_previous_thumbnail,$tpl);
+	$tpl = preg_replace("/<IMAGE_PREVIOUS_ID>/",$image_previous_id,$tpl);
+	$tpl = preg_replace("/<IMAGE_PREVIOUS_TITLE>/",$image_previous_title,$tpl);
+	$tpl = preg_replace("/<IMAGE_NEXT_LINK>/",$image_next_link,$tpl);
+	$tpl = preg_replace("/<IMAGE_NEXT_ID>/",$image_next_id,$tpl);
+	$tpl = preg_replace("/<IMAGE_NEXT_TITLE>/",$image_next_title,$tpl);
+	$tpl = preg_replace("/<IMAGE_NEXT_THUMBNAIL>/",$image_next_thumbnail,$tpl);
 
-	$tpl = ereg_replace("<IMAGE_LAST_LINK>",$last_image_link,$tpl);
-	$tpl = ereg_replace("<IMAGE_LAST_THUMBNAIL>",$last_image_thumbnail,$tpl);
-	$tpl = ereg_replace("<IMAGE_LAST_ID>",$last_image_id,$tpl);
-	$tpl = ereg_replace("<IMAGE_LAST_TITLE>",$last_image_title,$tpl);
-	$tpl = ereg_replace("<IMAGE_FIRST_LINK>",$first_image_link,$tpl);
-	$tpl = ereg_replace("<IMAGE_FIRST_ID>",$first_image_id,$tpl);
-	$tpl = ereg_replace("<IMAGE_FIRST_TITLE>",$first_image_title,$tpl);
-	$tpl = ereg_replace("<IMAGE_FIRST_THUMBNAIL>",$first_image_thumbnail,$tpl);
+	$tpl = preg_replace("/<IMAGE_LAST_LINK>/",$last_image_link,$tpl);
+	$tpl = preg_replace("/<IMAGE_LAST_THUMBNAIL>/",$last_image_thumbnail,$tpl);
+	$tpl = preg_replace("/<IMAGE_LAST_ID>/",$last_image_id,$tpl);
+	$tpl = preg_replace("/<IMAGE_LAST_TITLE>/",$last_image_title,$tpl);
+	$tpl = preg_replace("/<IMAGE_FIRST_LINK>/",$first_image_link,$tpl);
+	$tpl = preg_replace("/<IMAGE_FIRST_ID>/",$first_image_id,$tpl);
+	$tpl = preg_replace("/<IMAGE_FIRST_TITLE>/",$first_image_title,$tpl);
+	$tpl = preg_replace("/<IMAGE_FIRST_THUMBNAIL>/",$first_image_thumbnail,$tpl);
 
 
 
@@ -687,19 +687,19 @@ if(!isset($_GET['x']) /*$_GET['x'] == ""*/)
  	$vinfo_email = "";
  	if(isset($_COOKIE['visitorinfo']))	list($vinfo_name,$vinfo_url,$vinfo_email) = split("%",$_COOKIE['visitorinfo']);
 
- 	$tpl = ereg_replace("<VINFO_NAME>",$vinfo_name,$tpl);
- 	$tpl = ereg_replace("<VINFO_URL>",$vinfo_url,$tpl);
- 	$tpl = ereg_replace("<VINFO_EMAIL>",$vinfo_email,$tpl);
+ 	$tpl = preg_replace("/<VINFO_NAME>/",$vinfo_name,$tpl);
+ 	$tpl = preg_replace("/<VINFO_URL>/",$vinfo_url,$tpl);
+ 	$tpl = preg_replace("/<VINFO_EMAIL>/",$vinfo_email,$tpl);
  	if ($cfgrow['token'] == 'T'){
- 		$tpl = ereg_replace("<TOKEN>","<input type='hidden' name='token' value='".$_SESSION['token']."' />",$tpl);
+ 		$tpl = preg_replace("/<TOKEN>/","<input type='hidden' name='token' value='".$_SESSION['token']."' />",$tpl);
  	} else {
- 		$tpl = ereg_replace("<TOKEN>",null,$tpl);
+ 		$tpl = preg_replace("/<TOKEN>/",null,$tpl);
  	}
 	if($_GET['showimage'] == "")	$imageid = $image_id;
 	else	$imageid = $_GET['showimage'];
 
 	$image_comments = print_comments($imageid);
-	$tpl = ereg_replace("<IMAGE_COMMENTS>",$image_comments,$tpl);
+	$tpl = preg_replace("/<IMAGE_COMMENTS>/",$image_comments,$tpl);
 
 	if(($_GET['popup'] == "comment") AND (!isset($_GET['x'])OR$_GET['x'] != "save_comment"))
 	{
@@ -710,7 +710,7 @@ if(!isset($_GET['x']) /*$_GET['x'] == ""*/)
 //} // end if comment
 } // end imageprint
 
-$tpl = ereg_replace("<SITE_TITLE>",$pixelpost_site_title,$tpl);
+$tpl = preg_replace("/<SITE_TITLE>/",$pixelpost_site_title,$tpl);
 
 // ##########################################################################################//
 // BROWSE STUFF
@@ -726,27 +726,27 @@ require("includes/functions_feeds.php");
 // ##########################################################################################//
 // creating other tags
 // ########################################################################################
-$tpl = ereg_replace("<SITE_BROWSELINK>","./index.php?x=browse",$tpl);
-$tpl = ereg_replace("<SITE_BROWSELINK_PAGED>","./index.php?x=browse&amp;pagenum=1",$tpl);
-$tpl = ereg_replace("<SITE_PHOTONUMBER>",$pixelpost_photonumb,$tpl);
-$tpl = ereg_replace("<SITE_VISITORNUMBER>",$pixelpost_visitors,$tpl);
-$tpl = ereg_replace("<IMAGE_COMMENTS_NUMBER>",$image_comments_number,$tpl);
-$tpl = ereg_replace("<LATEST_COMMENT_ID>",$latest_comment,$tpl);
-$tpl = ereg_replace("<LATEST_COMMENT_NAME>",$latest_comment_name,$tpl);
+$tpl = preg_replace("/<SITE_BROWSELINK>/","./index.php?x=browse",$tpl);
+$tpl = preg_replace("/<SITE_BROWSELINK_PAGED>/","./index.php?x=browse&amp;pagenum=1",$tpl);
+$tpl = preg_replace("/<SITE_PHOTONUMBER>/",$pixelpost_photonumb,$tpl);
+$tpl = preg_replace("/<SITE_VISITORNUMBER>/",$pixelpost_visitors,$tpl);
+$tpl = preg_replace("/<IMAGE_COMMENTS_NUMBER>/",$image_comments_number,$tpl);
+$tpl = preg_replace("/<LATEST_COMMENT_ID>/",$latest_comment,$tpl);
+$tpl = preg_replace("/<LATEST_COMMENT_NAME>/",$latest_comment_name,$tpl);
 if($image_comments_number != 1){
-	$tpl = ereg_replace("<IMAGE_COMMENT_TEXT>",$lang_comment_plural,$tpl);
+	$tpl = preg_replace("/<IMAGE_COMMENT_TEXT>/",$lang_comment_plural,$tpl);
 }else{
-	$tpl = ereg_replace("<IMAGE_COMMENT_TEXT>",$lang_comment_single,$tpl);	
+	$tpl = preg_replace("/<IMAGE_COMMENT_TEXT>/",$lang_comment_single,$tpl);	
 }
 if ($row['comments'] == 'F')
 {
-	$tpl = ereg_replace("<COMMENT_POPUP>","<a href='index.php?showimage=$image_id' onclick=\"alert('$lang_comment_popup_disabled');\">$lang_comment_popup</a>",$tpl);
+	$tpl = preg_replace("/<COMMENT_POPUP>/","<a href='index.php?showimage=$image_id' onclick=\"alert('$lang_comment_popup_disabled');\">$lang_comment_popup</a>",$tpl);
 }
 else
 {
-	$tpl = ereg_replace("<COMMENT_POPUP>","<a href='index.php?showimage=$image_id' onclick=\"window.open('index.php?popup=comment&amp;showimage=$image_id','Comments','width=480,height=540,scrollbars=yes,resizable=yes');\">$lang_comment_popup</a>",$tpl);
+	$tpl = preg_replace("/<COMMENT_POPUP>/","<a href='index.php?showimage=$image_id' onclick=\"window.open('index.php?popup=comment&amp;showimage=$image_id','Comments','width=480,height=540,scrollbars=yes,resizable=yes');\">$lang_comment_popup</a>",$tpl);
 }
-$tpl = ereg_replace("<BROWSE_CATEGORIES>",$browse_select,$tpl);
+$tpl = preg_replace("/<BROWSE_CATEGORIES>/",$browse_select,$tpl);
 $tpl = str_replace("<BASE_HREF>","<base href='".$cfgrow['siteurl']."' />",$tpl);
 
 // ##########################################################################################//
