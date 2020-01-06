@@ -682,7 +682,7 @@ if($_GET['view'] == "options") {
 			// Maximum URI in comment
 			$upquery = sql_query($db, "update ".$pixelpost_db_prefix."config set max_uri_comments='".(int) $_POST['max_uri_comment']."'");
 			// refresh the settings
-			$cfgrow = sql_array("SELECT * FROM ".$pixelpost_db_prefix."config");
+			$cfgrow = sql_array($db, "SELECT * FROM ".$pixelpost_db_prefix."config");
 		} 
 		show_anti_spam($db);
 		echo "
