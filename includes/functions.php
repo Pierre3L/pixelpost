@@ -632,141 +632,117 @@ function count_addon_admin_menus ($addon_admin_menus,$menu_name,$additional = ''
 }
 //============================= CONTROL SPAM SECTION BEGINS ========================
 
-function banlist_exist()
-{
+function banlist_exist($db){
 	global $pixelpost_db_prefix;
 	// Check to see if the banlist table exists, if not, create it
 	$ret = TRUE;
 	$query = "SELECT id FROM {$pixelpost_db_prefix}banlist LIMIT 1";
-	if( !mysqli_query( $query))
+	if( !mysqli_query($db, $query))
 	 $ret = FALSE;
 	return $ret;
 }
 
 // function create banlist table
-function create_banlist()
-{
+function create_banlist($db){
 	global $pixelpost_db_prefix;
 	$result = '';
-	if (!banlist_exist()){
+	if (!banlist_exist($db)){
 		$query = "CREATE TABLE {$pixelpost_db_prefix}banlist (
 		id INT(11) NOT NULL auto_increment,
-		moderation_list MEDIUMTEXT NOT NULL default '',
-		blacklist MEDIUMTEXT NOT NULL default '',
-		ref_ban_list MEDIUMTEXT NOT NULL default '',
+		moderation_list MEDIUMTEXT,
+		blacklist MEDIUMTEXT,
+		ref_ban_list MEDIUMTEXT,
 		acceptable_num_links int(3) NOT NULL default '2',
 		PRIMARY KEY  (id)
 		)";
-	  mysqli_query( $query);
-	  $query = "INSERT INTO {$pixelpost_db_prefix}banlist VALUES ( NULL,'','','tramadol\n-online\nadipex\nadvicer\nambien\nbllogspot\ncarisoprodol\ncasino\ncasinos\nbaccarrat\ncialis\ncwas\ncyclen\ncyclobenzaprine\nday-trading\ndiscreetordering\ndutyfree\nduty-free\nfioricet\nfreenet-shopping\nincest\nlevitra\nmacinstruct\nmeridia\nonline-gambling\npaxil\nphentermine\nplatinum-celebs\npoker-chip\npoze\nprescription\nsoma\nslot-machine\ntaboo\nteen\ntramadol\ntrim-spa\nultram\nviagra\nxanax\nbooker\nzolus\nchatroom\npoker\ncasino\ntexas\nholdem','2')";
-	  mysqli_query( $query);
-	  if (mysqli_error())
-	  	$result = "$admin_lang_spam_err_1".mysqli_error();
-	  else
-	  	$result = "$admin_lang_spam_tableadd";
+	  	mysqli_query( $db, $query);
+	  	$query = "INSERT INTO {$pixelpost_db_prefix}banlist VALUES ( NULL,'','','tramadol\n-online\nadipex\nadvicer\nambien\nbllogspot\ncarisoprodol\ncasino\ncasinos\nbaccarrat\ncialis\ncwas\ncyclen\ncyclobenzaprine\nday-trading\ndiscreetordering\ndutyfree\nduty-free\nfioricet\nfreenet-shopping\nincest\nlevitra\nmacinstruct\nmeridia\nonline-gambling\npaxil\nphentermine\nplatinum-celebs\npoker-chip\npoze\nprescription\nsoma\nslot-machine\ntaboo\nteen\ntramadol\ntrim-spa\nultram\nviagra\nxanax\nbooker\nzolus\nchatroom\npoker\ncasino\ntexas\nholdem','2')";
+	  	mysqli_query($db, $query);
+	  	if (mysqli_error($db))
+	  		$result = "$admin_lang_spam_err_1".mysqli_error($db);
+	  	else
+	  		$result = "$admin_lang_spam_tableadd";
 	}// end if
 	return $result;
 }
 
 // Update the ban list if the form is called
-function update_banlist()
-{
+function update_banlist($db){
 	global $pixelpost_db_prefix;
-
-	if( isset( $_POST['banlistupdate']))
-	{
+	if( isset( $_POST['banlistupdate'])){
 		// moderation list
-		if (isset( $_POST['moderation_list']))
-		{
+		if (isset( $_POST['moderation_list'])){
 			$banlist = str_replace( "\r\n", "\n", $_POST['moderation_list']);
 			$banlist = str_replace( "\r", "\n", $banlist);
-			if (version_compare(phpversion(),"4.3.0")=="-1")	$banlist = mysqli_escape_string($banlist);
-			else	$banlist = mysqli_real_escape_string($banlist);
-
+			if (version_compare(phpversion(),"4.3.0")=="-1")	$banlist = mysqli_escape_string($db, $banlist);
+			else	$banlist = mysqli_real_escape_string($db, $banlist);
 			$query = "UPDATE {$pixelpost_db_prefix}banlist SET moderation_list='$banlist' LIMIT 1";
-			mysqli_query($query) ;
-
-			if ( mysqli_error())	$result .= "$admin_lang_spam_err_2".mysqli_error()."<br/>";
+			mysqli_query($db, $query) ;
+			if ( mysqli_error($db))	$result .= "$admin_lang_spam_err_2".mysqli_error($db)."<br/>";
 		}// end if
 
 		// black list
-		if (isset( $_POST['blacklist']))
-		{
+		if (isset( $_POST['blacklist'])){
 			$banlist = str_replace( "\r\n", "\n", $_POST['blacklist']);
 			$banlist = str_replace( "\r", "\n", $banlist);
-			if (version_compare(phpversion(),"4.3.0")=="-1")	$banlist = mysqli_escape_string($banlist);
-			else	$banlist = mysqli_real_escape_string($banlist);
-
+			if (version_compare(phpversion(),"4.3.0")=="-1")	$banlist = mysqli_escape_string($db, $banlist);
+			else	$banlist = mysqli_real_escape_string($db, $banlist);
 			$query = "UPDATE {$pixelpost_db_prefix}banlist SET blacklist='$banlist' LIMIT 1";
-			mysqli_query($query) ;
-
-			if ( mysqli_error())	$result .= "$admin_lang_spam_err_3".mysqli_error()."<br/>";
+			mysqli_query($db, $query) ;
+			if ( mysqli_error($db))	$result .= "$admin_lang_spam_err_3".mysqli_error($db)."<br/>";
 		}// end if
 
 		// referer ban list
-		if (isset( $_POST['ref_ban_list']))
-		{
+		if (isset( $_POST['ref_ban_list'])){
 			$banlist = str_replace( "\r\n", "\n", $_POST['ref_ban_list']);
 			$banlist = str_replace( "\r", "\n", $banlist);
-
-			if(version_compare(phpversion(),"4.3.0")=="-1")	$banlist = mysqli_escape_string($banlist);
-			else	$banlist = mysqli_real_escape_string($banlist);
-
+			if(version_compare(phpversion(),"4.3.0")=="-1")	$banlist = mysqli_escape_string($db, $banlist);
+			else	$banlist = mysqli_real_escape_string($db, $banlist);
 			$query = "UPDATE {$pixelpost_db_prefix}banlist SET ref_ban_list='$banlist' LIMIT 1";
-			mysqli_query($query) ;
-
-			if ( mysqli_error())	$result .= "$admin_lang_spam_err_4 ".mysqli_error()."<br/>";
+			mysqli_query($db, $query) ;
+			if ( mysqli_error($db))	$result .= "$admin_lang_spam_err_4 ".mysqli_error($db)."<br/>";
 		}// end if
 
 		// acceptable_num_links
-		if (isset( $_POST['acceptable_num_links']))
-		{
+		if (isset( $_POST['acceptable_num_links'])){
 			$acceptable_num_links= $_POST['acceptable_num_links'];
 			$query = "UPDATE {$pixelpost_db_prefix}banlist SET acceptable_num_links='$acceptable_num_links' LIMIT 1";
-			mysqli_query($query) ;
-
-			if ( mysqli_error())	$result .= "$admin_lang_spam_err_5 ".mysqli_error()."<br/>";
+			mysqli_query($db, $query) ;
+			if ( mysqli_error($db))	$result .= "$admin_lang_spam_err_5 ".mysqli_error($db)."<br/>";
 		}
-
 		if (!isset($result))	$result = "$admin_lang_spam_upd";
-
 		$result = $result."<br/>";
 	} // end if isset( $_POST['banlistupdate'])
-
 	return $result;
 }
 
 // Get the moderation_list
-function get_moderation_banlist()
+function get_moderation_banlist($db)
 {
 	global $pixelpost_db_prefix;
 	$query = "SELECT moderation_list FROM {$pixelpost_db_prefix}banlist LIMIT 1";
-	$result = mysqli_query($query) or die( mysqli_error());
-
+	$result = mysqli_query($db, $query) or die( mysqli_error($db));
 	if( $row = mysqli_fetch_row($result))	$banlist = $row[0];
-
 	return $banlist;
 }
 
 // Get the blacklist
-function get_blacklist()
+function get_blacklist($db)
 {
 	global $pixelpost_db_prefix;
 	$query = "SELECT blacklist FROM {$pixelpost_db_prefix}banlist LIMIT 1";
-	$result = mysqli_query($query) or die( mysqli_error());
+	$result = mysqli_query($db, $query) or die( mysqli_error($db));
 	if( $row = mysqli_fetch_row($result))	$banlist = $row[0];
-
 	return $banlist;
 }
 
 // Get the ref_ban_list
-function get_ref_ban_list()
+function get_ref_ban_list($db)
 {
-  global $pixelpost_db_prefix;
+  	global $pixelpost_db_prefix;
 	$query = "SELECT ref_ban_list FROM {$pixelpost_db_prefix}banlist LIMIT 1";
-	$result = mysqli_query($query) or die( mysqli_error());
+	$result = mysqli_query($db, $query) or die( mysqli_error($db));
 	if( $row = mysqli_fetch_row($result))	$banlist = $row[0];
-
 	return $banlist;
 }
 
@@ -838,26 +814,20 @@ function is_entry_ip ($entry)
 }
 
 // create the .htaccess for copy paste
-function create_htaccess_banlist()
+function create_htaccess_banlist($db)
 {
 	$badreflist = "SetEnvIfNoCase Referer \".*(";
-	$ref_banlist = get_ref_ban_list();
+	$ref_banlist = get_ref_ban_list($db);
 	$ref_banlist = explode("\n",$ref_banlist);
-	if (is_array($ref_banlist))
-	{
-		foreach ($ref_banlist as $entry)
-		{
+	if (is_array($ref_banlist)){
+		foreach ($ref_banlist as $entry){
 			if ($entry=='')	continue;
-
 			$entry = trim($entry);
 			$entry = clean_reflist($entry);
-
 			if (is_entry_ip($entry))	$denylist .= "deny from " .$entry."\n";
 			else	$badreflist .= $entry."|";
 		}// end for each
-	}
-	else
-	{
+	}else{
 		$entry = trim($ref_banlist);
 		$entry = clean_reflist($entry);
 		if (is_entry_ip($entry))	$denylist .= "deny from " .$entry."\n";
@@ -865,149 +835,102 @@ function create_htaccess_banlist()
 	}
 	$badreflist .="baccarat.host-c.com).*\" BadReferrer\norder deny,allow\n";
 	$badreflist .="deny from env=BadReferrer";
-
 	$to_htaccess = $denylist.$badreflist;
-
 	return $to_htaccess;
 }
 
 // compare the moderation list with comments
-function moderate_past_with_list()
-{
+function moderate_past_with_list($db){
 	global $pixelpost_db_prefix;
-	//	if( isset( $_POST['banlistupdate'])){
-	// moderation list
-	//	if (isset( $_POST['moderation_list'])) {
-
 	$where ='';
-	//if moderation of past comments pressed
 	if ($_GET['antispamaction']=='moderation')
 	{
-		$banlist= get_moderation_banlist();
+		$banlist= get_moderation_banlist($db);
 		$banlist = str_replace( "\r\n", "\n",$banlist);
 		$banlist = str_replace( "\r", "\n", $banlist);
 		$banlist = explode("\n",$banlist);
-
-		if (is_array($banlist))
-		{
-			foreach ($banlist as $entry)
-			{
+		if (is_array($banlist)){
+			foreach ($banlist as $entry){
 				if ($entry=='')	continue;
 				$entry = trim($entry);
 				$where .= " message LIKE '%{$entry}%' OR name LIKE '%{$entry}%' OR ip LIKE '%{$entry}%' OR ";
 			}// end for each
-		}
-		else
-		{
+		}else{
 			$entry = trim($ref_banlist);
 			$where .= " message LIKE '%{$entry}%' OR name LIKE '%{$entry}%' OR ip LIKE '%{$entry}%' OR ";
 		}
 
 		$where .= ' 0 ';
-
 		$query = "UPDATE {$pixelpost_db_prefix}comments SET publish='no' WHERE $where ";
-		mysqli_query($query);
-
-		if (mysqli_error())	$additional_msg = "$admin_lang_spam_err_6 ".mysqli_error()."<br/>";
+		mysqli_query($db, $query);
+		if (mysqli_error($db))	$additional_msg = "$admin_lang_spam_err_6 ".mysqli_error($db)."<br/>";
 		else	$additional_msg = "$admin_lang_spam_com_upd"."<br/>";
 	}// end if moderation
-
-//	}// end if (isset( $_POST['moderation_list'])) {
-//	}// end if isset( $_POST['banlistupdate'])){
 	$additional_msg = $additional_msg;
 	return $additional_msg;
 }
 
 
 // delete comments which contains words from the blacklist
-function delete_past_with_list()
-{
+function delete_past_with_list($db){
 	global $pixelpost_db_prefix;
-	//	if( isset( $_POST['banlistupdate'])){
-	// moderation list
-	//	if (isset( $_POST['moderation_list'])) {
-
 	$where ='';
-	//if moderation of past comments pressed
-	if ($_GET['antispamaction']=='deletecmnt')
-	{
-		$banlist= get_blacklist();
+	if ($_GET['antispamaction']=='deletecmnt'){
+		$banlist= get_blacklist($db);
 		$banlist = str_replace( "\r\n", "\n",$banlist);
 		$banlist = str_replace( "\r", "\n", $banlist);
 		$banlist = explode("\n",$banlist);
 
-		if (is_array($banlist))
-		{
-			foreach ($banlist as $entry)
-			{
+		if (is_array($banlist))	{
+			foreach ($banlist as $entry){
 				if ($entry=='')	continue;
 				$entry = trim($entry);
 				$where .= " message LIKE '%{$entry}%' OR name LIKE '%{$entry}%' OR ip LIKE '%{$entry}%' OR ";
 			}// end for each
-		}
-		else
-		{
+		}else{
 			$entry = trim($ref_banlist);
 			$where .= " message LIKE '%{$entry}%' OR name LIKE '%{$entry}%' OR ip LIKE '%{$entry}%' OR ";
 		}
 		$where .= ' 0 ';
-
 		$query = "delete from {$pixelpost_db_prefix}comments WHERE $where ";
-
-		mysqli_query($query);
-		if (mysqli_error())	$additional_msg = "$admin_lang_spam_err_7 ".mysqli_error()."<br/>";
+		mysqli_query($db, $query);
+		if (mysqli_error($db))	$additional_msg = "$admin_lang_spam_err_7 ".mysqli_error($db)."<br/>";
 		else	$additional_msg = "$admin_lang_spam_com_del"."<br/>";
 	}// end if moderation
-
-//	}// end if (isset( $_POST['moderation_list'])) {
-//	}// end if isset( $_POST['banlistupdate'])){
 	$additional_msg = $additional_msg;
 	return $additional_msg;
 }
 
 // delete refs that are listed in the ref ban list
-function delete_from_badreferer_list()
+function delete_from_badreferer_list($db)
 {
 	global $pixelpost_db_prefix;
-	//	if( isset( $_POST['banlistupdate'])){
-	// moderation list
-	//	if (isset( $_POST['moderation_list'])) {
-
 	$where ='';
 	//if moderation of past comments pressed
 	if ($_GET['antispamaction']=='deleterefs')
 	{
-		$banlist= get_ref_ban_list();
+		$banlist= get_ref_ban_list($db);
 		$banlist = str_replace( "\r\n", "\n",$banlist);
 		$banlist = str_replace( "\r", "\n", $banlist);
 		$banlist = explode("\n",$banlist);
-
-		if (is_array($banlist))
-		{
-			foreach ($banlist as $entry)
-			{
+		if (is_array($banlist)){
+			foreach ($banlist as $entry){
 				if ($entry=='')	continue;
 				$entry = trim($entry);
 				$where .= " referer LIKE '%{$entry}%' OR ";
 			}// end for each
-		}
-		else
-		{
+		}else{
 			$entry = trim($ref_banlist);
 			$where .= " referer LIKE '%{$entry}%' OR ";
 		}
 		$where .= ' 0 ';
-
 		$query = "delete from {$pixelpost_db_prefix}visitors WHERE $where ";
-		mysqli_query($query);
-		if (mysqli_error())
-			$additional_msg = "$admin_lang_spam_err_8".mysqli_error()."<br/>";
+		mysqli_query($db, $query);
+		if (mysqli_error($db))
+			$additional_msg = "$admin_lang_spam_err_8".mysqli_error($db)."<br/>";
 		else
 			$additional_msg = "$admin_lang_spam_visit_del"."<br/>";
 	}// end if moderation
-
-//	}// end if (isset( $_POST['moderation_list'])) {
-//	}// end if isset( $_POST['banlistupdate'])){
 	$additional_msg = $additional_msg;
 	return $additional_msg;
 }
