@@ -223,29 +223,23 @@ if($_GET['view'] == "images"){
 		$imagerow = sql_array($db, "SELECT image FROM ".$pixelpost_db_prefix."pixelpost where id='$getid'");
 		$image = $imagerow['image'];
 		$file_to_del = "$upload_dir".$imagerow['image'];
-		 echo "<div class='jcaption'>$admin_lang_imgedit_deleted	</div>
+		echo "<div class='jcaption'>$admin_lang_imgedit_deleted	</div>
 		<div class='content confirm'>";
-		$query = sql_query("delete from ".$pixelpost_db_prefix."pixelpost where id='$getid'");
+		$query = sql_query($db, "delete from ".$pixelpost_db_prefix."pixelpost where id='$getid'");
 		$query = "delete from ".$pixelpost_db_prefix."catassoc where image_id='$getid'";
-		$result = mysqli_query($query) ||("Error: ".mysqli_error());
+		$result = mysqli_query($db, $query) ||("Error: ".mysqli_error($db));
 		// added by ramin to delete the comments too!!
 		$query = "delete from ".$pixelpost_db_prefix."comments where parent_id='$getid'";
-		$result = mysqli_query($query) ||("Error: ".mysqli_error());
+		$result = mysqli_query($db, $query) ||("Error: ".mysqli_error($db));
 		$query = "delete from ".$pixelpost_db_prefix."tags where img_id='$getid'";
-		$result = mysqli_query($query) ||("Error: ".mysqli_error());
-		
+		$result = mysqli_query($db, $query) ||("Error: ".mysqli_error($db));
 		echo "&nbsp;$admin_lang_imgedit_deleted1&nbsp;";
-		
 		if(unlink($file_to_del))	$image_message = "&nbsp;$admin_lang_imgedit_deleted2&nbsp;&nbsp;";
 		else	$image_message = "$admin_lang_imgedit_delete_error<p />";
-		
 		echo $image_message;
-		
 		$file_to_del = "../thumbnails/thumb_".$imagerow['image'];
-
 		if(unlink($file_to_del))	$image_message = "&nbsp;$admin_lang_imgedit_deleted3";
 		else	$image_message = "$admin_lang_imgedit_delete_error2<p />";
-		
 		echo $image_message."</div>";
 	}
 
