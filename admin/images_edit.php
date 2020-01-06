@@ -57,13 +57,12 @@ if($_GET['view'] == "images"){
 
 			$query = "DELETE FROM ".$pixelpost_db_prefix."catassoc ";
 			$where = "WHERE";
-			for ($i=0; $i < count($idz); $i++)
-			{	$where .= " (cat_id='$cat_id' and image_id='$idz[$i]') or ";	}
-
+			for ($i=0; $i < count($idz); $i++){	
+				$where .= " (cat_id='$cat_id' and image_id='$idz[$i]') or ";	
+			}
 			$where .= " 0 ";
 			$query .= $where;
-
-			$query  = sql_query($query);
+			$query  = sql_query($db, $query);
 			$c = count($idz);
 			echo "<div class='jcaption'>$admin_lang_imgedit_mass_5 $c $admin_lang_imgedit_mass_6.</div>";
 		} // end if un-assign
@@ -81,13 +80,13 @@ if($_GET['view'] == "images"){
 			}
 			$where .= " 0 ";
 			$query .= $where;
-			$query  = sql_query($query);
+			$query  = sql_query($db, $query);
 
 			// now assign the new values
 			// ".$pixelpost_db_prefix."catassoc(id,cat_id,image_id) VALUES(NULL,'$val','$getid')";
 			for ($i=0; $i < count($idz); $i++){
 				$query = "insert into ".$pixelpost_db_prefix."catassoc (id,cat_id,image_id) VALUES(NULL,'$cat_id','$idz[$i]')";
-				$query  = sql_query($query);
+				$query  = sql_query($db, $query);
 			}
 			$c = count($idz);
 			echo "<div class='jcaption'>$admin_lang_imgedit_mass_7 $c $admin_lang_imgedit_mass_8</div>";
@@ -297,7 +296,7 @@ if($_GET['view'] == "images"){
 		for ($k=0;$k<count($cat_name);$k++){
 			$name =$cat_name[$k];
 			$id = $ids[$k];
-			echo "<option value=\"unassign-$id'\">$name</option>\n";
+			echo "<option value=\"unassign-$id\">$name</option>\n";
 	    }
 	
 		echo "</select> <input type='text' size='40' name='masstag' value='$admin_lang_imgedit_masstag...' onblur=\"if(this.value=='') this.value='$admin_lang_imgedit_masstag...';\" onfocus=\"if(this.value=='$admin_lang_imgedit_masstag...') this.value='';\"> <select name='masstagopt' size='1'><option value=''></option><option value='set'>$admin_lang_imgedit_masstag_set</option><option value='set2'>$admin_lang_imgedit_masstag_set2</option><option value='unset'>$admin_lang_imgedit_masstag_unset</option></select>";
