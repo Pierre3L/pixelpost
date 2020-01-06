@@ -554,7 +554,7 @@ body {
 
       <div class='php-codes'>
         $newitem_time = <font color="#0000FF">date</font>();<br>
-        $tpl = <font color="#0000FF">ereg_replace</font>(<font color="#FF0000">"&lt;NEWITEM_DATE&gt;"</font>,$newitem_time,$tpl);
+        $tpl = <font color="#0000FF">preg_replace</font>(<font color="#FF0000">"/&lt;NEWITEM_DATE&gt;/"</font>,$newitem_time,$tpl);
       </div><br>
       <a href="#top">^</a>
     </li>

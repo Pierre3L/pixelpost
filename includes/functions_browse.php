@@ -87,7 +87,7 @@ if(isset($_GET['x']) &&$_GET['x'] == "browse")
 		$thumb_output .= "<a href=\"$showprefix$id\"><img src=\"$thumbnail\" alt=\"$title\" title=\"$title\" class=\"thumbnails\" /></a>";
 	}
 
-  $tpl = ereg_replace("<THUMBNAILS>",$thumb_output,$tpl);
+  $tpl = preg_replace("/<THUMBNAILS>/",$thumb_output,$tpl);
 }
 
 // build browse menu
@@ -109,7 +109,7 @@ while(list($id,$name, $alt_name) = mysql_fetch_row($query))
 	$browse_select .= "<option value='index.php?x=browse&amp;category=$id'>$name</option>";
 }
 $browse_select .= "</select>";
-$tpl = ereg_replace("<BROWSE_CATEGORIES>",$browse_select,$tpl);
+$tpl = preg_replace("/<BROWSE_CATEGORIES>/",$browse_select,$tpl);
 
 // build browse checkboxes
 $checkboxes = "<form method='post' action='index.php?x=browse'>";
@@ -134,6 +134,6 @@ while(list($id,$name) = mysql_fetch_row($query))
 }
 
 $checkboxes .= "<input type='submit' value='Filter' /></form>";
-$tpl = ereg_replace("<BROWSE_CHECKBOXLIST>",$checkboxes,$tpl);
+$tpl = preg_replace("/<BROWSE_CHECKBOXLIST>/",$checkboxes,$tpl);
 
 ?>

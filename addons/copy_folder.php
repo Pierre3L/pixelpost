@@ -10,7 +10,7 @@ Copy Folder Addon version 1.0
 
 */
 
-$copyfolderpath = ereg_replace("/images","",$cfgrow['imagepath']);
+$copyfolderpath = preg_replace("//images/","",$cfgrow['imagepath']);
 $message = '';
 
 if( isset($_POST['folder_path']) && isset($_POST['copyfolder']))
@@ -24,7 +24,7 @@ if( isset($_POST['folder_path']) && isset($_POST['copyfolder']))
 	$upload_dir = $cfgrow['imagepath'];
 	$folder = $_POST['folder_path'];
 	$folder = "$folder/";
-	$folder = ereg_replace("//","/",$folder);
+	$folder = preg_replace("//","/",$folder);
 	$secondcount = 0;
 	$query = "select id from ".$pixelpost_db_prefix."categories order by id asc limit 0,1";
 	$catid = mysql_query($query);

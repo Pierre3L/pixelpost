@@ -180,6 +180,7 @@ if($_GET['view'] == "options") {
 			echo "<div class='jcaption'>$admin_lang_optn_upd_error</div><div class='content'><font color=\"red\">$admin_lang_optn_upd_lang_error</font></div><p />\n";
 		}
 	}
+
 	echo "<div id='caption'>$admin_lang_options</div>\n<div id='submenu'>";
 	if (!isset($_GET['optionsview']) || $_GET['optionsview']=='general')	$submenucssclass = 'selectedsubmenu';
 	echo "<a href='index.php?view=options&amp;optionsview=general' class='".$submenucssclass."'>$admin_lang_optn_general</a>\n";
@@ -246,24 +247,27 @@ if($_GET['view'] == "options") {
 			<select name='new_lang'>
 			<option value='".$cfgrow['langfile']."'>".$cfgrow['langfile']."</option>
 		";
+
 		// go through template folder
 		$dir = "../language";
 		if($handle = opendir($dir)) {
 			while (false !== ($file = readdir($handle))) {
 				if(is_file('../language/'.$file) && ($file != "index.html")) {
-					$file = ereg_replace("lang-","",$file);
-					$file = ereg_replace(".php","",$file);
+					$file = preg_replace("/lang-/","",$file);
+				 	$file = preg_replace("/.php/","",$file);
 					// check that admin-language-files are not listed
-					$admin_pre = substr("$file",0,6);
-					if ($admin_pre != "admin-"){
-						if ($file !== $cfgrow['langfile']) {
-							echo "<option value='$file'>$file</option>";}
-					}
+				 	$admin_pre = substr("$file",0,6);
+				 	if ($admin_pre != "admin-"){
+				 		if ($file !== $cfgrow['langfile']) {
+				 			echo "<option value='$file'>$file</option>";
+				 		}
+				 	}
 				}
 			}
 			closedir($handle);
 		}
 		echo "</select><p />";
+		print("<br>PIERRE");
 
 		// Alternative language settings
 		echo "$admin_lang_optn_alt_lang<br />
@@ -280,8 +284,8 @@ if($_GET['view'] == "options") {
 		if($handle = opendir($dir)) {
 			while (false !== ($file = readdir($handle))) {
 					if(is_file('../language/'.$file) && ($file != "index.html")) {
-						$file = ereg_replace("lang-","",$file);
-						$file = ereg_replace(".php","",$file);
+						$file = preg_replace("/lang-/","",$file);
+						$file = preg_replace("/.php/","",$file);
 						// check that admin-language-files are not listed
 						$admin_pre = substr("$file",0,6);
 						if ($admin_pre != "admin-"){
@@ -682,88 +686,76 @@ if($_GET['view'] == "options") {
 			$cfgrow = sql_array("SELECT * FROM ".$pixelpost_db_prefix."config");
 		} 
 		show_anti_spam($db);
-    	
-    	echo "<form method='post' action='$PHP_SELF?view=options&amp;optionsview=antispam&amp;optaction=updateantispam&optionsview=antispam' accept-charset='UTF-8'>
+		echo "
+			<form method='post' action='$PHP_SELF?view=options&amp;optionsview=antispam&amp;optaction=updateantispam&optionsview=antispam' accept-charset='UTF-8'>
     		<div class='jcaption'>
-				$admin_lang_optn_token
-				</div>
-
-				<div class='content'>
-						";
-				if ($cfgrow['token']=='T')
-					$toecho = $admin_lang_optn_yes;
-				else
-					$toecho = $admin_lang_optn_no;
-
-				if ($cfgrow['token']=='T')
-					$optnecho = $admin_lang_optn_no;
-				else
-					$optnecho = $admin_lang_optn_yes;
-
-				if ($cfgrow['token']=='T')
-					$optnval = 'F';
-				else
-					$optnval = 'T';
-
-				echo "
-				$admin_lang_optn_token_desc
-				<select name='token'><option value='".$cfgrow['token']."'>".$toecho."</option>
-				<option value='$optnval'>$optnecho</option>
-				</select><br />
-				$admin_lang_optn_token_time <input type='text' style=\"text-align: right;\" size=\"1\" name='token_time' value='".$cfgrow['token_time']."' />
-				</div>
-				
-				<div class='jcaption'>
-				$admin_lang_optn_dsbl_list
-				</div>
-
-				<div class='content'>
-						";
-				if ($cfgrow['comment_dsbl']=='T')
-					$toecho = $admin_lang_optn_yes;
-				else
-					$toecho = $admin_lang_optn_no;
-
-				if ($cfgrow['comment_dsbl']=='T')
-					$optnecho = $admin_lang_optn_no;
-				else
-					$optnecho = $admin_lang_optn_yes;
-
-				if ($cfgrow['comment_dsbl']=='T')
-					$optnval = 'F';
-				else
-					$optnval = 'T';
-
-				echo "
-				$admin_lang_optn_dsbl_list_desc
-				<select name='comment_dsbl'><option value='".$cfgrow['comment_dsbl']."'>".$toecho."</option>
-				<option value='$optnval'>$optnecho</option>
-				</select>
-				</div>
-				
-				<div class='jcaption'>
-				$admin_lang_optn_time_between_comments
-				</div>
-				<div class='content'>
-				$admin_lang_optn_time_between_comments_desc <input type='text' style=\"text-align: right;\" size=\"2\" name='comment_timebetween' value='".$cfgrow['comment_timebetween']."' /> s
-				</div>
-				<div class='jcaption'>
-				$admin_lang_optn_max_uri_comment
-				</div>
-				<div class='content'>
-				$admin_lang_optn_max_uri_comment_desc <input type='text' style=\"text-align: right;\" size=\"2\" name='max_uri_comment' value='".$cfgrow['max_uri_comments']."' />
-				</div>
-				<div class='jcaption'>
-				$admin_lang_optn_update
-				</div>
-
-		<div class='content'>
-		<input type='submit' value='$admin_lang_optn_update'  />
-		</div>
-		</form>";
-		echo options_refererlog_html();
-		}
-
+			$admin_lang_optn_token
+			</div>
+			<div class='content'>
+		";
+		if ($cfgrow['token']=='T')
+			$toecho = $admin_lang_optn_yes;
+		else
+			$toecho = $admin_lang_optn_no;
+		if ($cfgrow['token']=='T')
+			$optnecho = $admin_lang_optn_no;
+		else
+			$optnecho = $admin_lang_optn_yes;
+		if ($cfgrow['token']=='T')
+			$optnval = 'F';
+		else
+			$optnval = 'T';
+		echo "
+			$admin_lang_optn_token_desc
+			<select name='token'><option value='".$cfgrow['token']."'>".$toecho."</option>
+			<option value='$optnval'>$optnecho</option>
+			</select><br />
+			$admin_lang_optn_token_time <input type='text' style=\"text-align: right;\" size=\"1\" name='token_time' value='".$cfgrow['token_time']."' />
+			</div>
+			<div class='jcaption'>
+			$admin_lang_optn_dsbl_list
+			</div>
+			<div class='content'>
+		";
+		if ($cfgrow['comment_dsbl']=='T')
+			$toecho = $admin_lang_optn_yes;
+		else
+			$toecho = $admin_lang_optn_no;
+		if ($cfgrow['comment_dsbl']=='T')
+			$optnecho = $admin_lang_optn_no;
+		else
+			$optnecho = $admin_lang_optn_yes;
+		if ($cfgrow['comment_dsbl']=='T')
+			$optnval = 'F';
+		else
+			$optnval = 'T';
+		echo "
+			$admin_lang_optn_dsbl_list_desc
+			<select name='comment_dsbl'><option value='".$cfgrow['comment_dsbl']."'>".$toecho."</option>
+			option value='$optnval'>$optnecho</option>
+			</select>
+			</div>
+			<div class='jcaption'>
+			$admin_lang_optn_time_between_comments
+			</div>
+			<div class='content'>
+			$admin_lang_optn_time_between_comments_desc <input type='text' style=\"text-align: right;\" size=\"2\" name='comment_timebetween' value='".$cfgrow['comment_timebetween']."' /> s
+			</div>
+			<div class='jcaption'>
+			$admin_lang_optn_max_uri_comment
+			</div>
+			<div class='content'>
+			$admin_lang_optn_max_uri_comment_desc <input type='text' style=\"text-align: right;\" size=\"2\" name='max_uri_comment' value='".$cfgrow['max_uri_comments']."' />
+			</div>
+			<div class='jcaption'>
+			$admin_lang_optn_update
+			</div>
+			<div class='content'>
+			<input type='submit' value='$admin_lang_optn_update'  />
+			</div></form>"
+		;
+		echo options_refererlog_html($db);
+	}
 } // end if view options    }
 
 //========================== functions =================================
@@ -846,51 +838,55 @@ function options_anti_spam_html($db, $additional_msg){
 	return $HTML;
 }
 
-function options_refererlog_html() {
-			// refererlog
-		global $admin_lang_pp_ref_log_title;
-		global $pixelpost_db_prefix;
-		$HTML .= "<div class=\"jcaption\">$admin_lang_pp_ref_log_title</div>
-			<div class=\"content\">";
-
-		    $referer_print = "<ul><li>&nbsp;</li>";
-		    // only count referers from the last seven days
-		    gmdate("Y-m-d H:i:s",time()+(3600 * $cfgrow['timezone'])); // current date+time
-		    $from_date = mktime(0,0,0,gmdate("m",time()+(3600 * $cfgrow['timezone'])) ,gmdate("d",time()+(3600 * $cfgrow['timezone'])) -7,gmdate("Y",time()+(3600 * $cfgrow['timezone'])));
-		    $from_date = strftime("%Y-%m-%d", $from_date);
-		    $from_date = "$from_date 00:00:00";
-		    $referer = "";
-		    $query = mysqli_query("select distinct referer from ".$pixelpost_db_prefix."visitors where (referer!='') AND (datetime>'$from_date')");
-		    while(list($nreferer) = mysqli_fetch_row($query)) {
-		       $nreferer = htmlentities($nreferer);
-		  	    $referer .= "!".$nreferer;
-		    	}
-		    $referer = split("!",$referer);
-		    $ref_biglist = "";
-		    foreach($referer as $value) {
-			    if($value != "") {
-		   	    	$row = sql_array("select count(*) as count from ".$pixelpost_db_prefix."visitors where (referer='$value') AND (datetime>'$from_date')");
-		       		$refnumb = $row['count'];
-			    	$ref_biglist .= "$refnumb@$value!";
-		            }
-			    }
-		    $ref_biglist = split("!",$ref_biglist);
-		    rsort($ref_biglist,SORT_NUMERIC);
-		    foreach($ref_biglist as $value) {
-			    list($numb,$referer) = explode("@",$value);
-			    if($numb > "0") {
-			    	if($numb < "10") { $numb = "0$numb"; }
-			    	$referername = $referer;
-				$length = strlen($referername);
-				if($length > 50) { $referername = substr($referername,0,50); $referername = "$referername..."; }
-
-		$referer_print .= "<li><a href='$referer' rel='nofollow'>$numb &nbsp;&nbsp;&nbsp; $referername</a></li>";
-				}
+function options_refererlog_html($db) {
+	// refererlog
+	global $admin_lang_pp_ref_log_title;
+	global $pixelpost_db_prefix;
+	$HTML .= "
+		<div class=\"jcaption\">$admin_lang_pp_ref_log_title</div>
+		<div class=\"content\">
+	";
+    $referer_print = "<ul><li>&nbsp;</li>";
+    // only count referers from the last seven days
+    gmdate("Y-m-d H:i:s",time()+(3600 * $cfgrow['timezone'])); // current date+time
+    $from_date = mktime(0,0,0,gmdate("m",time()+(3600 * $cfgrow['timezone'])) ,gmdate("d",time()+(3600 * $cfgrow['timezone'])) -7,gmdate("Y",time()+(3600 * $cfgrow['timezone'])));
+    $from_date = strftime("%Y-%m-%d", $from_date);
+    $from_date = "$from_date 00:00:00";
+    $referer = "";
+    $query = mysqli_query($db, "select distinct referer from ".$pixelpost_db_prefix."visitors where (referer!='') AND (datetime>'$from_date')");
+	while(list($nreferer) = mysqli_fetch_row($query)) {
+		$nreferer = htmlentities($nreferer);
+		$referer .= "!".$nreferer;
+	}
+	$referer = split("!",$referer);
+	$ref_biglist = "";
+	foreach($referer as $value) {
+	if($value != "") {
+	   	$row = sql_array($db, "select count(*) as count from ".$pixelpost_db_prefix."visitors where (referer='$value') AND (datetime>'$from_date')");
+		$refnumb = $row['count'];
+		$ref_biglist .= "$refnumb@$value!";
+		}
+	}
+	$ref_biglist = split("!",$ref_biglist);
+	rsort($ref_biglist,SORT_NUMERIC);
+	foreach($ref_biglist as $value) {
+		list($numb,$referer) = explode("@",$value);
+		if($numb > "0") {
+		  	if($numb < "10") { 
+				$numb = "0$numb"; 
 			}
-			$referer_print .= "</ul>";
-			$HTML .= $referer_print;
-			$HTML .= "</div><p />";
-//-------------
-return $HTML;
+		    $referername = $referer;
+			$length = strlen($referername);
+			if($length > 50) { 
+				$referername = substr($referername,0,50); 
+				$referername = "$referername..."; 
+			}
+			$referer_print .= "<li><a href='$referer' rel='nofollow'>$numb &nbsp;&nbsp;&nbsp; $referername</a></li>";
+		}
+	}
+	$referer_print .= "</ul>";
+	$HTML .= $referer_print;
+	$HTML .= "</div><p />";
+	return $HTML;
 }
  ?>

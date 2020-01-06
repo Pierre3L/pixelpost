@@ -289,7 +289,7 @@ function show_splash($extra_message,$splash_dir)
 {
 if (file_exists($splash_dir."/splash_page.html")){
 		$splash = file_get_contents($splash_dir."/splash_page.html");
-		$splash = ereg_replace("<ERROR_MESSAGE>",$extra_message,$splash);
+		$splash = preg_replace("/<ERROR_MESSAGE>/",$extra_message,$splash);
 		die($splash) ;
 	} else {
 	die($extra_message);

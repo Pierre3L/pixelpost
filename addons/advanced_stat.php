@@ -101,7 +101,7 @@ if( mysql_query($query))
 	$visitorz = mysql_fetch_array($visitorz);
 	$pixelpost_visitors  += $visitorz['count'];
 	$str = $pixelpost_visitors .'';
-	$tpl = ereg_replace("<ADVNCD_SITE_VISITORNUMBER>",$str,$tpl);
+	$tpl = preg_replace("/<ADVNCD_SITE_VISITORNUMBER>/",$str,$tpl);
 }
 
 $addon_description .= 'Number of all visitors: '.$pixelpost_visitors ." -- Number visitors this month: ".$visitors['count'];

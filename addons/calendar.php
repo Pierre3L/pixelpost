@@ -39,7 +39,7 @@ if ($use_lang_var == "1"){
 
 // Don't use calendar
 if($cfgrow['calendar'] == "No Calendar") {
-	$tpl = ereg_replace("<SITE_CALENDAR>"," ",$tpl);
+	$tpl = preg_replace("/<SITE_CALENDAR>/"," ",$tpl);
 }
 
 $tz = $cfgrow['timezone'];
@@ -163,7 +163,7 @@ if($cfgrow['calendar'] == "Normal") {
 	$cal_vz .= "
 	</tr>
 	</table>";
-	$tpl = ereg_replace("<SITE_CALENDAR>",$cal_vz,$tpl);
+	$tpl = preg_replace("/<SITE_CALENDAR>/",$cal_vz,$tpl);
 } // normal cal end
 
 if($cfgrow['calendar'] == "Horizontal") {
@@ -229,7 +229,7 @@ if($cfgrow['calendar'] == "Horizontal") {
 	<a href='$PHP_SELF?curr_month=$next_month&amp;curr_year=$next_year&amp;showimage=$next_image_id'>&raquo;</a>
 	</td>
 	</tr></table>	";
-	$tpl = ereg_replace("<SITE_CALENDAR>",$cal_hz,$tpl);
+	$tpl = preg_replace("/<SITE_CALENDAR>/",$cal_hz,$tpl);
 }
 // end horizontal calendar
 // end calendar in condition, because otherwise calendar would not show because x can never empty
