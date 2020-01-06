@@ -142,79 +142,63 @@ function check_upload($string)
 	return($result);
 	}
 
-function createthumbnail($file)
-{
-  global $pixelpost_db_prefix;
-  $cfgquery = mysqli_query("select * from ".$pixelpost_db_prefix."config");
-  $cfgrow = mysqli_fetch_array($cfgquery);
-  // credit to codewalkers.com - there is 90% a tutorial there
-  $max_width = $cfgrow['thumbwidth'];
-  $max_height = $cfgrow['thumbheight'];
-  define(IMAGE_BASE, "../images");
-  $image_path = IMAGE_BASE . "/$file";
-  $img = null;
-  $image_path_exp = explode('.', $image_path);
-  $image_path_end = end($image_path_exp);
-  $ext = strtolower($image_path_end);
-  if ($ext == 'jpg' || $ext == 'jpeg')
-  {
-    $img = @imagecreatefromjpeg($image_path);
-  }
-  elseif($ext == 'png')
-  {
-    $img = @imagecreatefrompng($image_path);
-  }
-  elseif($ext == 'gif')
-  {
-    $img = @imagecreatefromgif($image_path);
-  }
+function createthumbnail($db, $file){
+  	global $pixelpost_db_prefix;
+  	$cfgquery = mysqli_query($db, "select * from ".$pixelpost_db_prefix."config");
+  	$cfgrow = mysqli_fetch_array($cfgquery);
+  	// credit to codewalkers.com - there is 90% a tutorial there
+  	$max_width = $cfgrow['thumbwidth'];
+  	$max_height = $cfgrow['thumbheight'];
+  	define(IMAGE_BASE, "../images");
+  	$image_path = IMAGE_BASE . "/$file";
+  	$img = null;
+  	$image_path_exp = explode('.', $image_path);
+  	$image_path_end = end($image_path_exp);
+  	$ext = strtolower($image_path_end);
+  	if ($ext == 'jpg' || $ext == 'jpeg'){
+    	$img = @imagecreatefromjpeg($image_path);
+  	}elseif($ext == 'png'){
+    	$img = @imagecreatefrompng($image_path);
+  	}elseif($ext == 'gif'){
+    	$img = @imagecreatefromgif($image_path);
+  	}
 
-  if($img)
-  {
-    $width = imagesx($img);
-    $height = imagesy($img);
-    $scale = max($max_width/$width, $max_height/$height);
+  	if($img){
+    	$width = imagesx($img);
+    	$height = imagesy($img);
+    	$scale = max($max_width/$width, $max_height/$height);
 
-    if($scale < 1)
-    {
-      $new_width = floor($scale*$width);
-      $new_height = floor($scale*$height);
-      $tmp_img = imagecreatetruecolor($new_width,$new_height);
-      // gd 2.0.1 or later: imagecopyresampled
-      // gd less than 2.0: imagecopyresized
-      if(function_exists(imagecopyresampled))
-      {
-        imagecopyresampled($tmp_img, $img, 0,0,0,0,$new_width,$new_height,$width,$height);
-      }
-      else
-      {
-        imagecopyresized($tmp_img, $img, 0,0,0,0,$new_width,$new_height,$width,$height);
-      }
+    	if($scale < 1){
+      		$new_width = floor($scale*$width);
+      		$new_height = floor($scale*$height);
+      		$tmp_img = imagecreatetruecolor($new_width,$new_height);
+      		// gd 2.0.1 or later: imagecopyresampled
+      		// gd less than 2.0: imagecopyresized
+      		if(function_exists(imagecopyresampled)){
+        		imagecopyresampled($tmp_img, $img, 0,0,0,0,$new_width,$new_height,$width,$height);
+      		}else{
+        		imagecopyresized($tmp_img, $img, 0,0,0,0,$new_width,$new_height,$width,$height);
+      		}
+	    	imagedestroy($img);
+	    	$img = $tmp_img;
+    	}
 
-	    imagedestroy($img);
-	    $img = $tmp_img;
-    }
-
-    if($cfgrow['crop'] == "yes" | $cfgrow['crop'] == "12c")
-    {
-      // crop
-      $tmp_img = imagecreatetruecolor($max_width,$max_height);
-      if(function_exists(imagecopyresampled))
-      {
-        imagecopyresampled($tmp_img, $img, 0,0,0,0,$max_width,$max_height,$max_width,$max_height);
-      }
-      else
-      {
-        imagecopyresized($tmp_img, $img, 0,0,0,0,$max_width,$max_height,$max_width,$max_height);
-      }
-      imagedestroy($img);
-      $img = $tmp_img;
-    } // end crop yes
-  }
-  touch("../thumbnails/thumb_$file");
-  imagejpeg($img,"../thumbnails/thumb_$file",$cfgrow['compression']);
-  $thumbimage = "../thumbnails/thumb_$file";
-  chmod($thumbimage,0644);
+    	if($cfgrow['crop'] == "yes" | $cfgrow['crop'] == "12c"){
+      		// crop
+      		$tmp_img = imagecreatetruecolor($max_width,$max_height);
+      		if(function_exists(imagecopyresampled)){
+        		imagecopyresampled($tmp_img, $img, 0,0,0,0,$max_width,$max_height,$max_width,$max_height);
+      		}else{
+        		imagecopyresized($tmp_img, $img, 0,0,0,0,$max_width,$max_height,$max_width,$max_height);
+      		}
+      		imagedestroy($img);
+      		$img = $tmp_img;
+    	} // end crop yes
+  	}
+  	touch("../thumbnails/thumb_$file");
+  	imagejpeg($img,"../thumbnails/thumb_$file",$cfgrow['compression']);
+  	$thumbimage = "../thumbnails/thumb_$file";
+  	chmod($thumbimage,0644);
 }
 
 function sql_query($db, $str)
@@ -1064,32 +1048,32 @@ function save_tags_new($tags_str,$theid)
 	}
 }
 
-function list_tags_edit($id)
+function list_tags_edit($db, $id)
 {
 	global $pixelpost_db_prefix;
 	$tags = '';
 
 	$sql_tag = "SELECT tag FROM " . $pixelpost_db_prefix . "tags WHERE img_id = " . $id . " AND alt_tag LIKE '' ORDER BY tag ASC";
-	$query = mysqli_query($sql_tag);
+	$query = mysqli_query($db, $sql_tag);
 
 	while(list($tag) = mysqli_fetch_row($query))	$tags .= ' '.$tag;
 
 	return trim($tags);
 }
 
-function del_tags_edit($id)
+function del_tags_edit($db, $id)
 {
 	global $pixelpost_db_prefix;
 
 	$sql_tag = "DELETE FROM " . $pixelpost_db_prefix . "tags WHERE img_id = " . $id . " AND tag NOT LIKE ''" ;
-	mysqli_query($sql_tag);
+	mysqli_query($db, $sql_tag);
 }
 
-function save_tags_edit($tags_str,$id)
+function save_tags_edit($db, $tags_str,$id)
 {
 	global $pixelpost_db_prefix;
-	del_tags_edit($id);
-	save_tags_new($tags_str,$id);
+	del_tags_edit($db, $id);
+	save_tags_new($db, $tags_str,$id);
 }
 
 //
@@ -1099,7 +1083,7 @@ function save_tags_edit($tags_str,$id)
 
 // alt_tag functions
 
-function save_alt_tags_new($tags_str,$theid)
+function save_alt_tags_new($db, $tags_str,$theid)
 {
 	global $pixelpost_db_prefix;
 
@@ -1117,18 +1101,18 @@ function save_alt_tags_new($tags_str,$theid)
 		for($i = 0; $i < count($tags_arr); $i++)
 		{
 			$sql_tag = "INSERT INTO " . $pixelpost_db_prefix. "tags (img_id, alt_tag) VALUES ( " . $theid . ",'" . addslashes($tags_arr[$i]) . "');";
-			mysqli_query($sql_tag);
+			mysqli_query($db, $sql_tag);
 		}
 	}
 }
 
-function list_alt_tags_edit($id)
+function list_alt_tags_edit($db, $id)
 {
 	global $pixelpost_db_prefix;
 	$tags = '';
 
 	$sql_tag = "SELECT alt_tag FROM " . $pixelpost_db_prefix . "tags WHERE img_id = " . $id . " AND tag LIKE '' ORDER BY tag ASC";
-	$query = mysqli_query($sql_tag);
+	$query = mysqli_query($db, $sql_tag);
 
 	while(list($alt_tag) = mysqli_fetch_row($query))
 	{
@@ -1137,20 +1121,20 @@ function list_alt_tags_edit($id)
 	return trim($tags);
 }
 
-function del_alt_tags_edit($id)
+function del_alt_tags_edit($db, $id)
 {
 	global $pixelpost_db_prefix;
 
 	$sql_tag = "DELETE FROM " . $pixelpost_db_prefix . "tags WHERE img_id = " . $id . " AND alt_tag NOT LIKE ''" ;
-	mysqli_query($sql_tag);
+	mysqli_query($db, $sql_tag);
 }
 
 
-function save_alt_tags_edit($tags_str,$id)
+function save_alt_tags_edit($db, $tags_str,$id)
 {
 	global $pixelpost_db_prefix;
-	del_alt_tags_edit($id);
-	save_alt_tags_new($tags_str,$id);
+	del_alt_tags_edit($db, $id);
+	save_alt_tags_new($db, $tags_str,$id);
 }
 //
 
