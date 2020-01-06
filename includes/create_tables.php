@@ -61,7 +61,10 @@ function Create13Tables( $db, $prefix)
 		timezone FLOAT DEFAULT 0 NOT NULL,
 		htmlemailnote CHAR(3) DEFAULT 'yes',
 		timestamp VARCHAR(4) DEFAULT 'yes' NOT NULL,
-		visitorbooking VARCHAR( 4) DEFAULT 'yes' NOT NULL		
+		visitorbooking VARCHAR( 4) DEFAULT 'yes' NOT NULL,
+		catgluestart varchar(5) DEFAULT '[' NOT NULL,
+		catglueend varchar(5) DEFAULT ']' NOT NULL
+		
 		)
 	") or die( "Error {$prefix}config: ". mysqli_error( $db ));
 	echo "<li style=\"list-style-type:none;\">Table {$prefix}config created ...</li>";
